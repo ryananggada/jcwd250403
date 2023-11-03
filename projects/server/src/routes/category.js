@@ -9,6 +9,7 @@ router.post(
   categoryValidator.applyCategoryValidation,
   categoryController.addCategory
 );
+router.get('/:id', categoryController.getSingleCategory);
 router.put(
   '/:id',
   categoryValidator.categoryRules,

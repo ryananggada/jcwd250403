@@ -13,7 +13,7 @@ exports.addCategory = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    return res.status(400).json({ ok: false, message: String(error) });
+    return res.status(500).json({ ok: false, message: String(error) });
   }
 };
 
@@ -45,7 +45,7 @@ exports.editCategory = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(400).json({ ok: false, message: String(error) });
+    return res.status(500).json({ ok: false, message: String(error) });
   }
 };
 
@@ -60,13 +60,13 @@ exports.deleteCategory = async (req, res) => {
           message: `Category of ID: ${categoryId}, deleted.`,
         });
       }
-      return res.json({
+      return res.status(404).json({
         ok: false,
         message: 'Category not found.',
       });
     });
   } catch (error) {
-    return res.status(400).json({ ok: false, message: String(error) });
+    return res.status(500).json({ ok: false, message: String(error) });
   }
 };
 
@@ -76,6 +76,22 @@ exports.getAllCategories = async (req, res) => {
 
     return res.json({ ok: true, data: categories });
   } catch (error) {
-    return res.status(400).json({ ok: false, message: String(error) });
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.getSingleCategory = async (req, res) => {
+  const categoryId = req.params.id;
+
+  try {
+    const category = await Category.findOne({ where: { id: categoryId } });
+
+    if (!category) {
+      return res.status(404).json({ ok: false, data: 'Category not found.' });
+    }
+
+    return res.json({ ok: true, data: category });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
   }
 };
