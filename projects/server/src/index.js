@@ -18,6 +18,11 @@ app.use(
 
 app.use(express.json());
 
+const db = require('./models');
+db.sequelize.sync();
+
+const categoryRouter = require('./routes/category');
+
 //#region API ROUTES
 const authRouter = require("./routes/auth");
 
@@ -35,6 +40,8 @@ app.get("/api/greetings", (req, res, next) => {
 		message: "Hello, Student !",
 	});
 });
+
+app.use('/api/categories', categoryRouter);
 
 // ===========================
 
@@ -60,7 +67,7 @@ app.use((err, req, res, next) => {
 //#endregion
 
 //#region CLIENT
-const clientPath = "../../client/build";
+const clientPath = '../../client/build';
 app.use(express.static(join(__dirname, clientPath)));
 
 // Serve the HTML page
