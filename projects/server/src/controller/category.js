@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { Category } = require('../models');
 
 exports.addCategory = async (req, res) => {
@@ -57,7 +58,7 @@ exports.deleteCategory = async (req, res) => {
       if (rowDeleted === 1) {
         return res.json({
           ok: true,
-          message: `Category of ID: ${categoryId}, deleted.`,
+          message: 'Category successfully deleted.',
         });
       }
       return res.status(404).json({
@@ -71,9 +72,27 @@ exports.deleteCategory = async (req, res) => {
 };
 
 exports.getAllCategories = async (req, res) => {
-  try {
-    const categories = await Category.findAll();
+  const { page, sort = '', search = '' } = req.query;
 
+  try {
+    if (page || sort || search) {
+      const categories = await Category.findAndCountAll({
+        where: {
+          location: { [Op.like]: `%${search}%` },
+        },
+        order: [['location', sort ? sort : 'ASC']],
+        offset: 5 * ((page ? page : 1) - 1),
+        limit: 5,
+      });
+
+      return res.json({
+        ok: true,
+        count: categories.count,
+        data: categories.rows,
+      });
+    }
+
+    const categories = await Category.findAll();
     return res.json({ ok: true, data: categories });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });

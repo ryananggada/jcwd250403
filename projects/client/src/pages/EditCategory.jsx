@@ -12,7 +12,7 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
 function EditCategory() {
@@ -23,20 +23,18 @@ function EditCategory() {
 
   const handleSubmit = async (values, form) => {
     try {
-      axios
-        .put(`${process.env.REACT_APP_API_BASE_URL}/categories/${id}`, values)
-        .then((res) => {
-          toast({
-            status: 'success',
-            title: 'Success',
-            description: 'Category has changed.',
-            isClosable: true,
-            duration: 2500,
-          });
-
-          form.resetForm();
-          navigate('/categories');
+      api.put(`/categories/${id}`, values).then((res) => {
+        toast({
+          status: 'success',
+          title: 'Success',
+          description: 'Category has changed.',
+          isClosable: true,
+          duration: 2500,
         });
+
+        form.resetForm();
+        navigate('/categories');
+      });
     } catch (error) {
       toast({
         status: 'error',
@@ -61,10 +59,8 @@ function EditCategory() {
   });
 
   useEffect(() => {
-    const fetchCategory = async () => {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/categories/${id}`
-      );
+    const fetchCategory = async (formik) => {
+      const response = await api.get(`/categories/${id}`);
       const { data } = response;
 
       formik.setValues({
@@ -72,7 +68,7 @@ function EditCategory() {
       });
     };
 
-    fetchCategory();
+    fetchCategory(formik);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -84,6 +80,7 @@ function EditCategory() {
         </Text>
         <FormControl
           isInvalid={formik.errors.location && formik.touched.location}
+          my="1.5rem"
         >
           <FormLabel>Location</FormLabel>
           <Input
@@ -96,7 +93,7 @@ function EditCategory() {
           <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green">
+        <Button type="submit" colorScheme="green" maxWidth="156px">
           Submit
         </Button>
       </Stack>
