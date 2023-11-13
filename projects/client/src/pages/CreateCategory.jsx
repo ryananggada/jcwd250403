@@ -30,7 +30,7 @@ function CreateCategory() {
         });
 
         form.resetForm();
-        navigate('/categories');
+        navigate('/tenant/categories');
       });
     } catch (error) {
       toast({

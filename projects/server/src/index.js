@@ -20,6 +20,7 @@ const db = require('./models');
 db.sequelize.sync();
 
 const categoryRouter = require('./routes/category');
+const propertyRouter = require('./routes/property');
 
 //#region API ROUTES
 
@@ -37,6 +38,9 @@ app.get('/api/greetings', (req, res, next) => {
 });
 
 app.use('/api/categories', categoryRouter);
+app.use('/api/properties', propertyRouter);
+
+app.use('/images', express.static(__dirname + '/public'));
 
 // ===========================
 

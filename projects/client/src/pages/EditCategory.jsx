@@ -17,7 +17,6 @@ import TenantLayout from '../components/TenantLayout';
 
 function EditCategory() {
   const { id } = useParams();
-
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -33,7 +32,7 @@ function EditCategory() {
         });
 
         form.resetForm();
-        navigate('/categories');
+        navigate('/tenant/categories');
       });
     } catch (error) {
       toast({
@@ -54,21 +53,22 @@ function EditCategory() {
     initialValues: {
       location: '',
     },
+    enableReinitialize: true,
     validationSchema: categorySchema,
     onSubmit: handleSubmit,
   });
 
   useEffect(() => {
-    const fetchCategory = async (formik) => {
+    const fetchCategory = async () => {
       const response = await api.get(`/categories/${id}`);
-      const { data } = response;
+      const {
+        data: { data },
+      } = response;
 
-      formik.setValues({
-        location: data.data.location,
-      });
+      formik.setFieldValue('location', data.location);
     };
 
-    fetchCategory(formik);
+    fetchCategory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 

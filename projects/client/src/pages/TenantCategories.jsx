@@ -45,7 +45,8 @@ const DeleteCategoryModal = ({
         <ModalHeader>Delete Category</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          Are you sure you want to delete this category: {modalData.location}?
+          Are you sure you want to delete this category location:{' '}
+          {modalData.location}?
         </ModalBody>
 
         <ModalFooter>
@@ -65,7 +66,7 @@ const DeleteCategoryModal = ({
   );
 };
 
-function Categories() {
+function TenantCategories() {
   const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [modalData, setModalData] = useState({ id: 0, location: '' });
@@ -94,7 +95,7 @@ function Categories() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to fetch categories. Msg: ${error.message}`,
+        description: `Failed to fetch categories. Message: ${error.message}`,
         isClosable: true,
         duration: 2500,
       });
@@ -118,7 +119,7 @@ function Categories() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to delete category. Msg: ${error.message}`,
+        description: `Failed to delete category. Message: ${error.message}`,
         isClosable: true,
         duration: 2500,
       });
@@ -170,7 +171,7 @@ function Categories() {
         </Text>
 
         <Box display="inline-block">
-          <Link to="/categories/create">
+          <Link to="/tenant/categories/create">
             <Button colorScheme="blue" maxWidth="156px">
               New Category
             </Button>
@@ -224,7 +225,7 @@ function Categories() {
                     <Td>{category.location}</Td>
                     <Td isNumeric>
                       <ButtonGroup>
-                        <Link to={`/categories/edit/${category.id}`}>
+                        <Link to={`/tenant/categories/edit/${category.id}`}>
                           <Button colorScheme="yellow">Edit</Button>
                         </Link>
                         <Button
@@ -265,4 +266,4 @@ function Categories() {
   );
 }
 
-export default Categories;
+export default TenantCategories;

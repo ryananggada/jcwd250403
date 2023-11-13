@@ -13,23 +13,22 @@ import {
   Image,
   useToast,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
-function CreateProperty() {
+function EditProperty() {
+  const { id } = useParams();
   const toast = useToast();
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      'image/*': ['.jpeg', '.png'],
-    },
+    accept: { 'image/*': ['.jpeg', '.png'] },
     maxFiles: 1,
     onDrop: (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -48,11 +47,12 @@ function CreateProperty() {
     tenantId: Yup.string().required('Tenant is required'),
     description: Yup.string().required('Description is required'),
     picture: Yup.mixed()
-      .required('Picture is required')
+      .nullable(true)
       .test(
         'fileType',
         'Invalid file type (must be in JPEG or PNG)',
         (value) => {
+          if (!value) return true;
           return value && ['image/jpeg', 'image/png'].includes(value.type);
         }
       )
@@ -60,6 +60,7 @@ function CreateProperty() {
         'fileSize',
         'Picture size is too large (must be less than 1MB)',
         (value) => {
+          if (!value) return true;
           return value && value.size <= 1 * 1024 * 1024;
         }
       ),
@@ -75,7 +76,7 @@ function CreateProperty() {
       formData.append('picture', values.picture);
 
       api
-        .post('/properties', formData, {
+        .put(`/properties/${id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
         .then((res) => {
@@ -109,22 +110,46 @@ function CreateProperty() {
       description: '',
       picture: null,
     },
+    enableReinitialize: true,
     validationSchema: propertySchema,
     onSubmit: handleSubmit,
   });
 
   useEffect(() => {
+    const fetchProperty = async () => {
+      const response = await api.get(`/properties/${id}`);
+      const {
+        data: { data },
+      } = response;
+
+      formik.setFieldValue('name', data.name);
+      formik.setFieldValue('categoryId', data.category.id);
+      formik.setFieldValue('tenantId', data.tenant.id);
+      formik.setFieldValue('description', data.description);
+
+      formik.setFieldValue(
+        'preview',
+        `${process.env.REACT_APP_IMAGE_LINK}/${data.picture}`
+      );
+    };
+
+    fetchProperty();
+
     api.get('/categories').then((res) => {
-      const { data } = res;
-      setCategories(data.data);
+      const {
+        data: { data },
+      } = res;
+      setCategories(data);
     });
-  }, []);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   return (
     <TenantLayout>
       <Stack as="form" maxWidth="420px" onSubmit={formik.handleSubmit}>
         <Text fontSize="2xl" fontWeight="bold">
-          Create New Property
+          Edit Property
         </Text>
         <FormControl isInvalid={formik.errors.name && formik.touched.name}>
           <FormLabel>Name</FormLabel>
@@ -206,4 +231,4 @@ function CreateProperty() {
   );
 }
 
-export default CreateProperty;
+export default EditProperty;
