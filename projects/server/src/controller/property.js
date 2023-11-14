@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { Property, Category, Tenant } = require('../models');
 
 exports.addProperty = async (req, res) => {
@@ -82,6 +83,11 @@ exports.getAllProperties = async (req, res) => {
         order: [['name', sort ? sort : 'ASC']],
         offset: 5 * ((page ? page : 1) - 1),
         limit: 5,
+        attributes: { exclude: ['categoryId', 'tenantId'] },
+        include: [
+          { model: Category, as: 'category' },
+          { model: Tenant, as: 'tenant' },
+        ],
       });
 
       return res.json({

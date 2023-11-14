@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Box,
   Stack,
   Text,
-  Box,
   Button,
   Flex,
   InputGroup,
   InputLeftElement,
+  useToast,
   Select,
   TableContainer,
   Table,
@@ -16,9 +17,7 @@ import {
   Th,
   Tbody,
   Td,
-  Image,
   ButtonGroup,
-  useToast,
   useDisclosure,
   Modal,
   ModalOverlay,
@@ -32,27 +31,20 @@ import { FiSearch } from 'react-icons/fi';
 import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
-const DeletePropertyModal = ({
-  isOpen,
-  onClose,
-  modalData,
-  handleDeleteProperty,
-}) => {
+const DeleteRoomModal = ({ isOpen, onClose, modalData, handleDeleteRoom }) => {
   return (
     <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Delete Property</ModalHeader>
+        <ModalHeader>Delete Room</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
-          Are you sure you want to delete this property: {modalData.name}?
-        </ModalBody>
+        <ModalBody>Are you sure you want to delete this room?</ModalBody>
 
         <ModalFooter>
           <Button
             colorScheme="red"
             marginRight={4}
-            onClick={() => handleDeleteProperty({ id: modalData.id })}
+            onClick={() => handleDeleteRoom({ id: modalData.id })}
           >
             Yes
           </Button>
@@ -65,43 +57,43 @@ const DeletePropertyModal = ({
   );
 };
 
-function TenantProperties() {
+function TenantRooms() {
   const toast = useToast();
-  const [properties, setProperties] = useState([]);
-  const [modalData, setModalData] = useState({ id: 0, name: '' });
+  const [rooms, setRooms] = useState([]);
+  const [modalData, setModalData] = useState({ id: 0, type: '' });
   const { isOpen, onClose, onOpen } = useDisclosure();
 
-  const handleOpenDeleteModal = ({ id, name }) => {
-    setModalData({ id, name });
+  const handleOpenDeleteModal = ({ id, roomType }) => {
+    setModalData({ id, roomType });
     onOpen();
   };
 
-  const getProperties = useCallback(async () => {
+  const getRooms = useCallback(async () => {
     try {
       const {
         data: { data },
-      } = await api.get('/properties');
-      setProperties(data);
+      } = await api.get('/rooms');
+      setRooms(data);
     } catch (error) {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to fetch properties. Message: ${error.message}`,
+        description: `Failed to fetch rooms. Message: ${error.message}`,
         isClosable: true,
         duration: 2500,
       });
     }
   }, [toast]);
 
-  const handleDeleteProperty = async ({ id }) => {
+  const handleDeleteRoom = async ({ id }) => {
     try {
-      await api.delete(`/properties/${id}`).then((res) => {
-        getProperties();
+      await api.delete(`/rooms/${id}`).then((res) => {
+        getRooms();
         onClose();
         toast({
           status: 'success',
           title: 'Success',
-          description: 'Property is deleted.',
+          description: 'Room is deleted.',
           isClosable: true,
           duration: 2500,
         });
@@ -110,7 +102,7 @@ function TenantProperties() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to delete property. Message: ${error.message}`,
+        description: `Failed to delete room. Message: ${error.message}`,
         isClosable: true,
         duration: 2500,
       });
@@ -118,20 +110,20 @@ function TenantProperties() {
   };
 
   useEffect(() => {
-    getProperties();
-  }, [getProperties]);
+    getRooms();
+  }, [getRooms]);
 
   return (
     <TenantLayout>
       <Stack direction="column" gap="20px">
         <Text fontSize="3xl" fontWeight="bold">
-          Properties
+          Rooms
         </Text>
 
         <Box display="inline-block">
-          <Link to="/tenant/properties/create">
+          <Link to="/tenant/rooms/create">
             <Button colorScheme="blue" maxWidth="156px">
-              New Property
+              New Room
             </Button>
           </Link>
         </Box>
@@ -158,43 +150,36 @@ function TenantProperties() {
           <Table>
             <Thead>
               <Tr>
-                <Th>Name</Th>
-                <Th>Location</Th>
+                <Th>Property</Th>
+                <Th>Room Type</Th>
+                <Th>Price</Th>
                 <Th>Description</Th>
-                <Th>Tenant</Th>
-                <Th>Picture</Th>
                 <Th></Th>
               </Tr>
             </Thead>
             <Tbody>
-              {properties.length === 0 ? (
+              {rooms.length === 0 ? (
                 <Tr>
-                  <Td>No properties yet</Td>
+                  <Td>No rooms yet</Td>
                 </Tr>
               ) : (
-                properties.map((property) => (
-                  <Tr key={property.id}>
-                    <Td>{property.name}</Td>
-                    <Td>{property.category.location}</Td>
-                    <Td>{property.description}</Td>
-                    <Td>{property.tenant.name}</Td>
-                    <Td>
-                      <Image
-                        src={`${process.env.REACT_APP_IMAGE_LINK}/${property.picture}`}
-                        width={216}
-                      />
-                    </Td>
+                rooms.map((room) => (
+                  <Tr key={room.id}>
+                    <Td>{room.property.name}</Td>
+                    <Td>{room.roomType}</Td>
+                    <Td>{room.price}</Td>
+                    <Td>{room.description}</Td>
                     <Td isNumeric>
                       <ButtonGroup>
-                        <Link to={`/tenant/properties/edit/${property.id}`}>
+                        <Link to={`/tenant/rooms/edit/${room.id}`}>
                           <Button colorScheme="yellow">Edit</Button>
                         </Link>
                         <Button
                           colorScheme="red"
                           onClick={() =>
                             handleOpenDeleteModal({
-                              id: property.id,
-                              name: property.name,
+                              id: room.id,
+                              roomType: room.roomType,
                             })
                           }
                         >
@@ -215,14 +200,14 @@ function TenantProperties() {
         </Flex>
       </Stack>
 
-      <DeletePropertyModal
+      <DeleteRoomModal
         isOpen={isOpen}
         onClose={onClose}
         modalData={modalData}
-        handleDeleteProperty={handleDeleteProperty}
+        handleDeleteRoom={handleDeleteRoom}
       />
     </TenantLayout>
   );
 }
 
-export default TenantProperties;
+export default TenantRooms;

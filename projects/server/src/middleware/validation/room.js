@@ -1,21 +1,21 @@
 const { body, validationResult } = require('express-validator');
 
-exports.propertyRules = [
-  body('name').notEmpty().withMessage('Name cannot be empty.'),
-  body('categoryId')
+exports.roomRules = [
+  body('propertyId')
     .notEmpty()
-    .withMessage('Category ID cannot be empty.')
+    .withMessage('Property ID cannot be empty.')
     .isInt()
-    .withMessage('Category ID must be a number.'),
-  body('tenantId')
+    .withMessage('Property ID must be a number.'),
+  body('roomType').notEmpty().withMessage('Room type cannot be empty.'),
+  body('price')
     .notEmpty()
-    .withMessage('Tenant ID cannot be empty.')
+    .withMessage('Price cannot be empty.')
     .isInt()
-    .withMessage('Tenant ID must be a number.'),
+    .withMessage('Price must be a number.'),
   body('description').notEmpty().withMessage('Description cannot be empty.'),
 ];
 
-exports.applyPropertyValidation = (req, res, next) => {
+exports.applyRoomValidation = (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     return res.status(400).json({

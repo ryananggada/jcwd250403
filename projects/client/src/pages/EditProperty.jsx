@@ -83,7 +83,7 @@ function EditProperty() {
           toast({
             status: 'success',
             title: 'Success',
-            description: 'New property is added.',
+            description: 'Property successfully editted.',
             isClosable: true,
             duration: 2500,
           });

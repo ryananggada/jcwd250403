@@ -7,6 +7,9 @@ import TenantProperties from './pages/TenantProperties';
 import NotFound from './pages/NotFound';
 import CreateProperty from './pages/CreateProperty';
 import EditProperty from './pages/EditProperty';
+import TenantRooms from './pages/TenantRooms';
+import CreateRoom from './pages/CreateRoom';
+import EditRoom from './pages/EditRoom';
 
 function App() {
   return (
@@ -18,6 +21,9 @@ function App() {
       <Route path="/tenant/properties" element={<TenantProperties />} />
       <Route path="/tenant/properties/create" element={<CreateProperty />} />
       <Route path="/tenant/properties/edit/:id" element={<EditProperty />} />
+      <Route path="/tenant/rooms" element={<TenantRooms />} />
+      <Route path="/tenant/rooms/create" element={<CreateRoom />} />
+      <Route path="/tenant/rooms/edit/:id" element={<EditRoom />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

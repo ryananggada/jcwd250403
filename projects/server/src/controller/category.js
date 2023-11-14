@@ -9,7 +9,7 @@ exports.addCategory = async (req, res) => {
       location,
     });
 
-    res.json({
+    return res.json({
       ok: true,
       data: result,
     });
