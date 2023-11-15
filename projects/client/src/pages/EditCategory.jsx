@@ -12,31 +12,28 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
 function EditCategory() {
   const { id } = useParams();
-
   const toast = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (values, form) => {
     try {
-      axios
-        .put(`${process.env.REACT_APP_API_BASE_URL}/categories/${id}`, values)
-        .then((res) => {
-          toast({
-            status: 'success',
-            title: 'Success',
-            description: 'Category has changed.',
-            isClosable: true,
-            duration: 2500,
-          });
-
-          form.resetForm();
-          navigate('/categories');
+      api.put(`/categories/${id}`, values).then((res) => {
+        toast({
+          status: 'success',
+          title: 'Success',
+          description: 'Category has changed.',
+          isClosable: true,
+          duration: 2500,
         });
+
+        form.resetForm();
+        navigate('/tenant/categories');
+      });
     } catch (error) {
       toast({
         status: 'error',
@@ -56,20 +53,19 @@ function EditCategory() {
     initialValues: {
       location: '',
     },
+    enableReinitialize: true,
     validationSchema: categorySchema,
     onSubmit: handleSubmit,
   });
 
   useEffect(() => {
     const fetchCategory = async () => {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/categories/${id}`
-      );
-      const { data } = response;
+      const response = await api.get(`/categories/${id}`);
+      const {
+        data: { data },
+      } = response;
 
-      formik.setValues({
-        location: data.data.location,
-      });
+      formik.setFieldValue('location', data.location);
     };
 
     fetchCategory();
@@ -84,6 +80,7 @@ function EditCategory() {
         </Text>
         <FormControl
           isInvalid={formik.errors.location && formik.touched.location}
+          my="1.5rem"
         >
           <FormLabel>Location</FormLabel>
           <Input
@@ -96,7 +93,7 @@ function EditCategory() {
           <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green">
+        <Button type="submit" colorScheme="green" maxWidth="156px">
           Submit
         </Button>
       </Stack>

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Box,
   Text,
   Table,
   TableContainer,
@@ -11,6 +12,7 @@ import {
   Tbody,
   Button,
   Stack,
+  Flex,
   ButtonGroup,
   useDisclosure,
   useToast,
@@ -21,8 +23,13 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
+  InputGroup,
+  InputLeftElement,
+  Input,
+  Select,
 } from '@chakra-ui/react';
-import axios from 'axios';
+import api from '../api';
+import { FiSearch } from 'react-icons/fi';
 import TenantLayout from '../components/TenantLayout';
 
 const DeleteCategoryModal = ({
@@ -38,7 +45,8 @@ const DeleteCategoryModal = ({
         <ModalHeader>Delete Category</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          Are you sure you want to delete this category: {modalData.location}?
+          Are you sure you want to delete this category location:{' '}
+          {modalData.location}?
         </ModalBody>
 
         <ModalFooter>
@@ -58,11 +66,18 @@ const DeleteCategoryModal = ({
   );
 };
 
-function Categories() {
+function TenantCategories() {
   const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [modalData, setModalData] = useState({ id: 0, location: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [currentSort, setCurrentSort] = useState('ASC');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [querySearch, setQuerySearch] = useState('');
   const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const searchTimeout = useRef(null);
 
   const handleOpenDeleteModal = ({ id, location }) => {
     setModalData({ id, location });
@@ -71,50 +86,82 @@ function Categories() {
 
   const getCategories = useCallback(async () => {
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/categories`
+      const { data } = await api.get(
+        `/categories?page=${currentPage}&sort=${currentSort}&search=${querySearch}`
       );
       setCategories(data.data);
+      setTotalPage(Math.ceil(data.count / 5));
     } catch (error) {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to fetch categories. Msg: ${error.message}`,
+        description: `Failed to fetch categories. Message: ${error.message}`,
         isClosable: true,
         duration: 2500,
       });
     }
-  }, [toast]);
+  }, [toast, currentPage, currentSort, querySearch]);
 
   const handleDeleteCategory = async ({ id }) => {
     try {
-      await axios
-        .delete(`${process.env.REACT_APP_API_BASE_URL}/categories/${id}`)
-        .then((res) => {
-          getCategories();
-          onClose();
-          toast({
-            status: 'success',
-            title: 'Success',
-            description: 'Category is deleted.',
-            isClosable: true,
-            duration: 2500,
-          });
+      await api.delete(`/categories/${id}`).then((res) => {
+        getCategories();
+        onClose();
+        toast({
+          status: 'success',
+          title: 'Success',
+          description: 'Category is deleted.',
+          isClosable: true,
+          duration: 2500,
         });
+      });
     } catch (error) {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to delete category. Msg: ${error.message}`,
+        description: `Failed to delete category. Message: ${error.message}`,
         isClosable: true,
         duration: 2500,
       });
     }
   };
 
+  const handleChangeSort = (e) => {
+    const newValue = e.target.value;
+    setCurrentSort(newValue);
+    setCurrentPage(1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (totalPage > currentPage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handleSearchTerm = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
     getCategories();
   }, [getCategories]);
+
+  useEffect(() => {
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+
+    searchTimeout.current = setTimeout(() => {
+      setQuerySearch(searchTerm);
+    }, 500);
+  }, [searchTerm]);
 
   return (
     <TenantLayout>
@@ -123,9 +170,41 @@ function Categories() {
           Categories
         </Text>
 
-        <Button colorScheme="blue" maxWidth="156px">
-          <Link to="/categories/create">New Category</Link>
-        </Button>
+        <Box display="inline-block">
+          <Link to="/tenant/categories/create">
+            <Button colorScheme="blue" maxWidth="156px">
+              New Category
+            </Button>
+          </Link>
+        </Box>
+
+        <Flex>
+          <InputGroup maxWidth="576px">
+            <InputLeftElement pointerEvents="none">
+              <FiSearch color="gray.300" />
+            </InputLeftElement>
+            <Input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={handleSearchTerm}
+            />
+          </InputGroup>
+
+          <InputGroup alignItems="center" justifyContent="end">
+            <Text mr="1rem">Sort by</Text>
+            <Select
+              width="200px"
+              value={currentSort}
+              onChange={handleChangeSort}
+            >
+              <option value="ASC" defaultValue>
+                A-Z
+              </option>
+              <option value="DESC">Z-A</option>
+            </Select>
+          </InputGroup>
+        </Flex>
 
         <TableContainer maxWidth="576px">
           <Table>
@@ -146,7 +225,7 @@ function Categories() {
                     <Td>{category.location}</Td>
                     <Td isNumeric>
                       <ButtonGroup>
-                        <Link to={`/categories/edit/${category.id}`}>
+                        <Link to={`/tenant/categories/edit/${category.id}`}>
                           <Button colorScheme="yellow">Edit</Button>
                         </Link>
                         <Button
@@ -168,6 +247,13 @@ function Categories() {
             </Tbody>
           </Table>
         </TableContainer>
+        <Flex justifyContent="flex-end" alignItems="center">
+          <Button onClick={() => handlePrevPage()}>{'<'}</Button>
+          <Text mx="2">
+            {currentPage} of {totalPage === 0 ? 1 : totalPage}
+          </Text>
+          <Button onClick={() => handleNextPage()}>{'>'}</Button>
+        </Flex>
       </Stack>
 
       <DeleteCategoryModal
@@ -180,4 +266,4 @@ function Categories() {
   );
 }
 
-export default Categories;
+export default TenantCategories;

@@ -11,8 +11,14 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Property.hasMany(models.Room, { foreignKey: 'propertyId' });
       Property.hasMany(models.Review, { foreignKey: 'propertyId' });
-      Property.belongsTo(models.Category, { foreignKey: 'categoryId' });
-      Property.belongsTo(models.Tenant, { foreignKey: 'tenantId' });
+      Property.belongsTo(models.Category, {
+        foreignKey: 'categoryId',
+        as: 'category',
+      });
+      Property.belongsTo(models.Tenant, {
+        foreignKey: 'tenantId',
+        as: 'tenant',
+      });
     }
   }
   Property.init(

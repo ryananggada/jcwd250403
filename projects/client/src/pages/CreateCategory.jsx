@@ -11,7 +11,7 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
 function CreateCategory() {
@@ -20,20 +20,18 @@ function CreateCategory() {
 
   const handleSubmit = async (values, form) => {
     try {
-      axios
-        .post(`${process.env.REACT_APP_API_BASE_URL}/categories`, values)
-        .then((res) => {
-          toast({
-            status: 'success',
-            title: 'Success',
-            description: 'New category is added.',
-            isClosable: true,
-            duration: 2500,
-          });
-
-          form.resetForm();
-          navigate('/categories');
+      api.post(`/categories`, values).then((res) => {
+        toast({
+          status: 'success',
+          title: 'Success',
+          description: 'New category is added.',
+          isClosable: true,
+          duration: 2500,
         });
+
+        form.resetForm();
+        navigate('/tenant/categories');
+      });
     } catch (error) {
       toast({
         status: 'error',
@@ -65,6 +63,7 @@ function CreateCategory() {
         </Text>
         <FormControl
           isInvalid={formik.errors.location && formik.touched.location}
+          my="1.5rem"
         >
           <FormLabel>Location</FormLabel>
           <Input
@@ -77,7 +76,7 @@ function CreateCategory() {
           <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green">
+        <Button type="submit" colorScheme="green" maxWidth="156px">
           Submit
         </Button>
       </Stack>
