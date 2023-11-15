@@ -6,6 +6,7 @@ const { multerUpload } = require('../middleware/multer');
 router.get('/', propertyController.getAllProperties);
 router.post(
   '/',
+  propertyValidator.propertyRules,
   propertyValidator.applyPropertyValidation,
   multerUpload.single('picture'),
   propertyController.addProperty
@@ -13,6 +14,7 @@ router.post(
 router.get('/:id', propertyController.getSingleProperty);
 router.put(
   '/:id',
+  propertyValidator.propertyRules,
   propertyValidator.applyPropertyValidation,
   multerUpload.single('picture'),
   propertyController.editProperty
