@@ -34,6 +34,7 @@ const LinkItems = [
   { name: 'Categories', icon: FiTrendingUp, path: '/tenant/categories' },
   { name: 'Properties', icon: FiCompass, path: '/tenant/properties' },
   { name: 'Rooms', icon: FiStar, path: '/tenant/rooms' },
+  { name: 'Set availability', icon: FiBell, path: '/tenant/availabilities' },
   { name: 'Transactions', icon: FiSettings, path: '/tenant/transactions' },
 ];
 

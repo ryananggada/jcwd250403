@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { User } = require('../models');
+const sendEmail = require('../middleware/email');
 
 exports.createUser = async (req, res) => {
   const { name, email, password, phoneNumber } = req.body;
@@ -21,7 +22,19 @@ exports.createUser = async (req, res) => {
         isVerified: false,
       });
 
-      return res.json({ ok: true, data: result });
+      const message =
+        'Welcome to Pintuku! In order to use your account, you need to verify by clicking this link here';
+
+      try {
+        await sendEmail({
+          email: email,
+          subject: 'Your Pintuku account is created',
+          message,
+        });
+        return res.json({ ok: true, data: result });
+      } catch (error) {
+        return res.status(400).json({ ok: false, message: String(error) });
+      }
     }
     return res
       .status(400)

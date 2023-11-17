@@ -74,7 +74,7 @@ function CreateProperty() {
       formData.append('description', values.description);
       formData.append('picture', values.picture);
 
-      api
+      await api
         .post('/properties', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
@@ -94,7 +94,7 @@ function CreateProperty() {
       toast({
         status: 'error',
         title: 'Error',
-        description: `Something went wrong: ${error.message}`,
+        description: `Something went wrong: ${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });

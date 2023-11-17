@@ -35,7 +35,7 @@ function CreateRoom() {
 
   const handleSubmit = async (values, form) => {
     try {
-      api.post('/rooms', values).then((res) => {
+      await api.post('/rooms', values).then((res) => {
         toast({
           status: 'success',
           title: 'Success',

@@ -11,6 +11,8 @@ import TenantRooms from './pages/TenantRooms';
 import CreateRoom from './pages/CreateRoom';
 import EditRoom from './pages/EditRoom';
 import UserSignup from './pages/UserSignup';
+import TenantAvailability from './pages/TenantAvailability';
+import AddAvailability from './pages/AddAvailability';
 
 function App() {
   return (
@@ -25,6 +27,11 @@ function App() {
       <Route path="/tenant/rooms" element={<TenantRooms />} />
       <Route path="/tenant/rooms/create" element={<CreateRoom />} />
       <Route path="/tenant/rooms/edit/:id" element={<EditRoom />} />
+      <Route path="/tenant/availabilities" element={<TenantAvailability />} />
+      <Route
+        path="/tenant/availabilities/add/:id"
+        element={<AddAvailability />}
+      />
       <Route path="/user/signup" element={<UserSignup />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

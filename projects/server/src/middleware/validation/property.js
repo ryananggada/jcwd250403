@@ -1,18 +1,18 @@
-const { body, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 
 exports.propertyRules = [
-  body('name').notEmpty().withMessage('Name cannot be empty.'),
-  body('categoryId')
+  check('name').notEmpty().withMessage('Name cannot be empty.'),
+  check('categoryId')
     .notEmpty()
     .withMessage('Category ID cannot be empty.')
     .isInt()
     .withMessage('Category ID must be a number.'),
-  body('tenantId')
+  check('tenantId')
     .notEmpty()
     .withMessage('Tenant ID cannot be empty.')
     .isInt()
     .withMessage('Tenant ID must be a number.'),
-  body('description').notEmpty().withMessage('Description cannot be empty.'),
+  check('description').notEmpty().withMessage('Description cannot be empty.'),
 ];
 
 exports.applyPropertyValidation = (req, res, next) => {
