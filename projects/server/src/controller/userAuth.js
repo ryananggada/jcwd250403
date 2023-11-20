@@ -83,8 +83,7 @@ exports.loginHandler = async (req, res) => {
       ok: true,
       data: {
         token,
-        id: user.id,
-        email: user.email,
+        payload,
       },
     });
   } catch (error) {

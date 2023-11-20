@@ -1,7 +1,8 @@
 import React from 'react';
+import UserLayout from '../components/UserLayout';
 
 function Home() {
-  return <div>Home</div>;
+  return <UserLayout>Home</UserLayout>;
 }
 
 export default Home;

@@ -16,6 +16,7 @@ import {
   MenuList,
   MenuItem,
   MenuDivider,
+  Image,
 } from '@chakra-ui/react';
 import {
   FiHome,
@@ -51,9 +52,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
       {...rest}
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontWeight="bold">
-          Pintuku
-        </Text>
+        <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
@@ -118,14 +117,9 @@ const MobileNav = ({ onOpen, ...rest }) => {
         icon={<FiMenu />}
       />
 
-      <Text
-        display={{ base: 'flex', md: 'none' }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
-      >
-        Pintuku
-      </Text>
+      <Box display={{ base: 'flex', md: 'none' }}>
+        <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
+      </Box>
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <IconButton
