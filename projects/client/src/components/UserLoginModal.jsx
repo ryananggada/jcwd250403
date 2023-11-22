@@ -53,7 +53,7 @@ function UserLoginModal({ isOpen, onClose }) {
 
       dispatch(
         login({
-          user: { id: data.payload.id, role: data.payload.role },
+          profile: { id: data.payload.id, role: data.payload.role },
           token: data.token,
         })
       );

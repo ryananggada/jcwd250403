@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Box,
@@ -31,6 +31,7 @@ import {
 import api from '../api';
 import { FiSearch } from 'react-icons/fi';
 import TenantLayout from '../components/TenantLayout';
+import useDebounced from '../hooks/useDebounce';
 
 const DeleteCategoryModal = ({
   isOpen,
@@ -74,10 +75,8 @@ function TenantCategories() {
   const [totalPage, setTotalPage] = useState(1);
   const [currentSort, setCurrentSort] = useState('ASC');
   const [searchTerm, setSearchTerm] = useState('');
-  const [querySearch, setQuerySearch] = useState('');
+  const querySearch = useDebounced(searchTerm, 1500);
   const { isOpen, onClose, onOpen } = useDisclosure();
-
-  const searchTimeout = useRef(null);
 
   const handleOpenDeleteModal = ({ id, location }) => {
     setModalData({ id, location });
@@ -86,9 +85,13 @@ function TenantCategories() {
 
   const getCategories = useCallback(async () => {
     try {
-      const { data } = await api.get(
-        `/categories?page=${currentPage}&sort=${currentSort}&search=${querySearch}`
-      );
+      const { data } = await api.get('/categories', {
+        params: {
+          page: currentPage,
+          sort: currentSort,
+          search: querySearch,
+        },
+      });
       setCategories(data.data);
       setTotalPage(Math.ceil(data.count / 5));
     } catch (error) {
@@ -104,16 +107,15 @@ function TenantCategories() {
 
   const handleDeleteCategory = async ({ id }) => {
     try {
-      await api.delete(`/categories/${id}`).then((res) => {
-        getCategories();
-        onClose();
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'Category is deleted.',
-          isClosable: true,
-          duration: 2500,
-        });
+      await api.delete(`/categories/${id}`);
+      getCategories();
+      onClose();
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Category is deleted.',
+        isClosable: true,
+        duration: 2500,
       });
     } catch (error) {
       toast({
@@ -152,16 +154,6 @@ function TenantCategories() {
   useEffect(() => {
     getCategories();
   }, [getCategories]);
-
-  useEffect(() => {
-    if (searchTimeout.current) {
-      clearTimeout(searchTimeout.current);
-    }
-
-    searchTimeout.current = setTimeout(() => {
-      setQuerySearch(searchTerm);
-    }, 500);
-  }, [searchTerm]);
 
   return (
     <TenantLayout>

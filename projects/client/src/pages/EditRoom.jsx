@@ -37,14 +37,13 @@ function EditRoom() {
 
   const handleSubmit = async (values, form) => {
     try {
-      api.put(`/rooms/${id}`, values).then((res) => {
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'Room successfully editted.',
-          isClosable: true,
-          duration: 2500,
-        });
+      await api.put(`/rooms/${id}`, values);
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Room successfully editted.',
+        isClosable: true,
+        duration: 2500,
       });
       form.resetForm();
       navigate('/tenant/rooms');

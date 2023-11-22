@@ -22,18 +22,17 @@ function EditCategory() {
 
   const handleSubmit = async (values, form) => {
     try {
-      api.put(`/categories/${id}`, values).then((res) => {
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'Category has changed.',
-          isClosable: true,
-          duration: 2500,
-        });
-
-        form.resetForm();
-        navigate('/tenant/categories');
+      await api.put(`/categories/${id}`, values);
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Category has changed.',
+        isClosable: true,
+        duration: 2500,
       });
+
+      form.resetForm();
+      navigate('/tenant/categories');
     } catch (error) {
       toast({
         status: 'error',

@@ -13,6 +13,7 @@ import EditRoom from './pages/EditRoom';
 import UserSignup from './pages/UserSignup';
 import TenantAvailability from './pages/TenantAvailability';
 import AddAvailability from './pages/AddAvailability';
+import VerifyUser from './pages/VerifyUser';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         path="/tenant/availabilities/add/:id"
         element={<AddAvailability />}
       />
+      <Route path="/verify/:id" element={<VerifyUser />} />
       <Route path="/user/signup" element={<UserSignup />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

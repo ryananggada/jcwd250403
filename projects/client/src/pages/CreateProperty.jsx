@@ -74,22 +74,19 @@ function CreateProperty() {
       formData.append('description', values.description);
       formData.append('picture', values.picture);
 
-      await api
-        .post('/properties', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        .then((res) => {
-          toast({
-            status: 'success',
-            title: 'Success',
-            description: 'New property is added.',
-            isClosable: true,
-            duration: 2500,
-          });
+      await api.post('/properties', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'New property is added.',
+        isClosable: true,
+        duration: 2500,
+      });
 
-          form.resetForm();
-          navigate('/tenant/properties');
-        });
+      form.resetForm();
+      navigate('/tenant/properties');
     } catch (error) {
       toast({
         status: 'error',
@@ -115,8 +112,10 @@ function CreateProperty() {
 
   useEffect(() => {
     api.get('/categories').then((res) => {
-      const { data } = res;
-      setCategories(data.data);
+      const {
+        data: { data },
+      } = res;
+      setCategories(data);
     });
   }, []);
 

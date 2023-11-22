@@ -20,18 +20,17 @@ function CreateCategory() {
 
   const handleSubmit = async (values, form) => {
     try {
-      api.post(`/categories`, values).then((res) => {
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'New category is added.',
-          isClosable: true,
-          duration: 2500,
-        });
-
-        form.resetForm();
-        navigate('/tenant/categories');
+      await api.post(`/categories`, values);
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'New category is added.',
+        isClosable: true,
+        duration: 2500,
       });
+
+      form.resetForm();
+      navigate('/tenant/categories');
     } catch (error) {
       toast({
         status: 'error',

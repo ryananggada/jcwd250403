@@ -75,22 +75,19 @@ function EditProperty() {
       formData.append('description', values.description);
       formData.append('picture', values.picture);
 
-      api
-        .put(`/properties/${id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        .then((res) => {
-          toast({
-            status: 'success',
-            title: 'Success',
-            description: 'Property successfully editted.',
-            isClosable: true,
-            duration: 2500,
-          });
+      await api.put(`/properties/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Property successfully editted.',
+        isClosable: true,
+        duration: 2500,
+      });
 
-          form.resetForm();
-          navigate('/tenant/properties');
-        });
+      form.resetForm();
+      navigate('/tenant/properties');
     } catch (error) {
       toast({
         status: 'error',

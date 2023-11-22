@@ -31,7 +31,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import UserLoginModal from './UserLoginModal';
 import { logout } from '../slices/auth';
 
-const Links = ['Dashboard', 'Projects', 'Team'];
+const Links = ['View Orders'];
 
 const NavLink = ({ children }) => {
   return (
@@ -67,6 +67,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
+
       <Stack as="nav" spacing={4} pl={4}>
         {Links.map((link) => (
           <NavLink key={link}>{link}</NavLink>
@@ -102,11 +103,10 @@ const SocialButton = ({ children, label, href }) => {
 
 function UserLayout({ children }) {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const profile = useSelector((state) => state.auth.profile);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const loginModal = useDisclosure();
-  const isLogin = false;
 
   return (
     <Box display="flex" flexDirection="column" minH="100vh">
@@ -131,14 +131,14 @@ function UserLayout({ children }) {
           </HStack>
           <Flex alignItems="center">
             <Button
-              display={user === null ? 'block' : 'none'}
+              display={profile === null ? 'block' : 'none'}
               colorScheme="teal"
               size="sm"
               onClick={loginModal.onOpen}
             >
               Login
             </Button>
-            <Box display={user !== null ? 'block' : 'none'}>
+            <Box display={profile !== null ? 'block' : 'none'}>
               <Menu>
                 <MenuButton
                   as={Button}

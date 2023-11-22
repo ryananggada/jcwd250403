@@ -19,6 +19,9 @@ function UserSignup() {
   const toast = useToast();
   const navigate = useNavigate();
 
+  const phoneRegExp =
+    /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
   const signupSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string()
@@ -34,12 +37,16 @@ function UserSignup() {
     confirmPassword: Yup.string()
       .required('Confirm password is required')
       .oneOf([Yup.ref('password')], 'Confirm password does not match'),
-    phoneNumber: Yup.string().required('Phone number is required'),
+    phoneNumber: Yup.string()
+      .required('Phone number is required')
+      .matches(phoneRegExp, 'Phone number is not valid'),
   });
 
-  const handleSubmit = async (values, form) => {
+  const handleSubmit = async (values) => {
     try {
-      await api.post('/auth/user/signup', values);
+      const {
+        data: { data },
+      } = await api.post('/auth/user/signup', values);
       toast({
         status: 'success',
         title: 'Success',
@@ -47,7 +54,7 @@ function UserSignup() {
         isClosable: true,
         duration: 7500,
       });
-      navigate('/');
+      navigate(`/verify/${data.id}`);
     } catch (error) {
       toast({
         status: 'error',
@@ -144,7 +151,12 @@ function UserSignup() {
           </FormControl>
 
           <Stack spacing={6}>
-            <Button type="submit" colorScheme="teal" variant="solid">
+            <Button
+              type="submit"
+              colorScheme="teal"
+              variant="solid"
+              isDisabled={!(formik.isValid && formik.dirty)}
+            >
               Sign Up
             </Button>
           </Stack>

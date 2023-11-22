@@ -35,14 +35,13 @@ function CreateRoom() {
 
   const handleSubmit = async (values, form) => {
     try {
-      await api.post('/rooms', values).then((res) => {
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'New room is added.',
-          isClosable: true,
-          duration: 2500,
-        });
+      await api.post('/rooms', values);
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'New room is added.',
+        isClosable: true,
+        duration: 2500,
       });
       form.resetForm();
       navigate('/tenant/rooms');

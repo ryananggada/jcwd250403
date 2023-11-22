@@ -24,6 +24,7 @@ const categoryRouter = require('./routes/category');
 const propertyRouter = require('./routes/property');
 const roomRouter = require('./routes/room');
 const availableDateRouter = require('./routes/availableDate');
+const verifyRouter = require('./routes/verify');
 
 //#region API ROUTES
 
@@ -45,6 +46,7 @@ app.use('/api/categories', categoryRouter);
 app.use('/api/properties', propertyRouter);
 app.use('/api/rooms', roomRouter);
 app.use('/api/available-dates', availableDateRouter);
+app.use('/api/verify', verifyRouter);
 
 app.use('/images', express.static(__dirname + '/public'));
 

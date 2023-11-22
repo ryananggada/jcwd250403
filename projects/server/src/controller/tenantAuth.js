@@ -5,12 +5,6 @@ const { Tenant } = require('../models');
 exports.createTenant = async (req, res) => {
   const { name, email, password, phoneNumber } = req.body;
 
-  const result = await Tenant.create({
-    name,
-    email,
-    password,
-    phoneNumber,
-  });
   try {
     const isEmailTaken = await Tenant.findOne({ where: { email: email } });
     if (!isEmailTaken) {
@@ -60,15 +54,14 @@ exports.loginHandler = async (req, res) => {
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-      expiresIn: '1d',
+      expiresIn: '2h',
     });
 
     return res.json({
       ok: true,
       data: {
         token,
-        id: tenant.id,
-        email: tenant.email,
+        payload,
       },
     });
   } catch (error) {

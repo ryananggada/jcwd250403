@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
+import Cookies from 'js-cookie';
 
 const initialState = {
-  user: null,
-  token: null,
+  profile: Cookies.get('profile') ?? null,
+  token: Cookies.get('token') ?? null,
 };
 
 const authSlice = createSlice({
@@ -10,12 +11,17 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login(state, action) {
-      const { user, token } = action.payload;
-      state.user = user;
+      const { profile, token } = action.payload;
+      state.profile = profile;
       state.token = token;
+      let twoHour = 1 / 12;
+      Cookies.set('profile', JSON.stringify(profile), { expires: twoHour });
+      Cookies.set('token', token, { expires: twoHour });
     },
     logout(state) {
-      state.user = null;
+      Cookies.remove('profile');
+      Cookies.remove('token');
+      state.profile = null;
       state.token = null;
     },
   },
