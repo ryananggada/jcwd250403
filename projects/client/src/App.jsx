@@ -14,27 +14,44 @@ import UserSignup from './pages/UserSignup';
 import TenantAvailability from './pages/TenantAvailability';
 import AddAvailability from './pages/AddAvailability';
 import VerifyUser from './pages/VerifyUser';
+import TenantSignup from './pages/TenantSignup';
+import TenantHome from './pages/TenantHome';
+import TenantLogin from './pages/TenantLogin';
+import TenantRoute from './components/TenantRoute';
+import NonTenantRoute from './components/NonTenantRoute';
+import LoggedOutRoute from './components/LoggedOutRoute';
 
 function App() {
   return (
     <Routes>
-      <Route index element={<Home />} />
-      <Route path="/tenant/categories" element={<TenantCategories />} />
-      <Route path="/tenant/categories/create" element={<CreateCategory />} />
-      <Route path="/tenant/categories/edit/:id" element={<EditCategory />} />
-      <Route path="/tenant/properties" element={<TenantProperties />} />
-      <Route path="/tenant/properties/create" element={<CreateProperty />} />
-      <Route path="/tenant/properties/edit/:id" element={<EditProperty />} />
-      <Route path="/tenant/rooms" element={<TenantRooms />} />
-      <Route path="/tenant/rooms/create" element={<CreateRoom />} />
-      <Route path="/tenant/rooms/edit/:id" element={<EditRoom />} />
-      <Route path="/tenant/availabilities" element={<TenantAvailability />} />
-      <Route
-        path="/tenant/availabilities/add/:id"
-        element={<AddAvailability />}
-      />
-      <Route path="/verify/:id" element={<VerifyUser />} />
-      <Route path="/user/signup" element={<UserSignup />} />
+      <Route element={<NonTenantRoute />}>
+        <Route path="/" element={<Home />} />
+      </Route>
+
+      <Route element={<TenantRoute />}>
+        <Route path="/tenant" element={<TenantHome />} />
+        <Route path="/tenant/categories" element={<TenantCategories />} />
+        <Route path="/tenant/categories/create" element={<CreateCategory />} />
+        <Route path="/tenant/categories/edit/:id" element={<EditCategory />} />
+        <Route path="/tenant/properties" element={<TenantProperties />} />
+        <Route path="/tenant/properties/create" element={<CreateProperty />} />
+        <Route path="/tenant/properties/edit/:id" element={<EditProperty />} />
+        <Route path="/tenant/rooms" element={<TenantRooms />} />
+        <Route path="/tenant/rooms/create" element={<CreateRoom />} />
+        <Route path="/tenant/rooms/edit/:id" element={<EditRoom />} />
+        <Route path="/tenant/availabilities" element={<TenantAvailability />} />
+        <Route
+          path="/tenant/availabilities/add/:id"
+          element={<AddAvailability />}
+        />
+      </Route>
+
+      <Route element={<LoggedOutRoute />}>
+        <Route path="/verify/:id" element={<VerifyUser />} />
+        <Route path="/tenant/signup" element={<TenantSignup />} />
+        <Route path="/tenant/login" element={<TenantLogin />} />
+        <Route path="/user/signup" element={<UserSignup />} />
+      </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

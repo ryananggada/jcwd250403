@@ -86,6 +86,7 @@ exports.loginHandler = async (req, res) => {
 
     const payload = {
       id: user.id,
+      name: tenant.name,
       role: 'user',
     };
 

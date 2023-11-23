@@ -8,6 +8,7 @@ import {
   HStack,
   Stack,
   Button,
+  ButtonGroup,
   Menu,
   MenuButton,
   Avatar,
@@ -30,6 +31,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import UserLoginModal from './UserLoginModal';
 import { logout } from '../slices/auth';
+import { Link } from 'react-router-dom';
 
 const Links = ['View Orders'];
 
@@ -130,14 +132,24 @@ function UserLayout({ children }) {
             </HStack>
           </HStack>
           <Flex alignItems="center">
-            <Button
-              display={profile === null ? 'block' : 'none'}
-              colorScheme="teal"
-              size="sm"
-              onClick={loginModal.onOpen}
-            >
-              Login
-            </Button>
+            <ButtonGroup>
+              <Link to="/tenant/login">
+                <Button
+                  display={profile === null ? 'block' : 'none'}
+                  variant="outline"
+                  colorScheme="blue"
+                >
+                  Register Property
+                </Button>
+              </Link>
+              <Button
+                display={profile === null ? 'block' : 'none'}
+                colorScheme="blue"
+                onClick={loginModal.onOpen}
+              >
+                Login
+              </Button>
+            </ButtonGroup>
             <Box display={profile !== null ? 'block' : 'none'}>
               <Menu>
                 <MenuButton

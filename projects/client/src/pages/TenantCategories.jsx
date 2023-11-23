@@ -98,7 +98,7 @@ function TenantCategories() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to fetch categories. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
@@ -121,7 +121,7 @@ function TenantCategories() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to delete category. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });

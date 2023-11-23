@@ -4,6 +4,7 @@ const { Tenant } = require('../models');
 
 exports.createTenant = async (req, res) => {
   const { name, email, password, phoneNumber } = req.body;
+  const ktpCard = req.file;
 
   try {
     const isEmailTaken = await Tenant.findOne({ where: { email: email } });
@@ -16,6 +17,7 @@ exports.createTenant = async (req, res) => {
         email,
         password: hashedPassword,
         phoneNumber,
+        ktpCard: ktpCard.filename,
       });
 
       return res.json({ ok: true, data: result });
@@ -50,6 +52,7 @@ exports.loginHandler = async (req, res) => {
 
     const payload = {
       id: tenant.id,
+      name: tenant.name,
       role: 'tenant',
     };
 

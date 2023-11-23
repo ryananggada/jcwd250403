@@ -22,7 +22,7 @@ function VerifyUser() {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, form) => {
     try {
       const res = await api.post(`/verify/${id}`, values);
       toast({
@@ -32,6 +32,7 @@ function VerifyUser() {
         isClosable: true,
         duration: 7500,
       });
+      form.resetForm();
       navigate('/');
     } catch (error) {
       toast({

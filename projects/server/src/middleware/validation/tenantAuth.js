@@ -1,6 +1,6 @@
 const { body, validationResult } = require('express-validator');
 
-exports.userSignupRules = [
+exports.tenantSignupRules = [
   body('name').notEmpty().withMessage('Name cannot be empty.'),
   body('email').isEmail().withMessage('Email must be valid.'),
   body('password')
@@ -19,7 +19,7 @@ exports.userSignupRules = [
     .withMessage('Phone number must be in valid format.'),
 ];
 
-exports.userLoginRules = [
+exports.tenantLoginRules = [
   body('email').isEmail().withMessage('Email must be valid.'),
   body('password')
     .isStrongPassword({
@@ -34,7 +34,7 @@ exports.userLoginRules = [
     ),
 ];
 
-exports.applyUserAuthValidation = (req, res, next) => {
+exports.applyTenantAuthValidation = (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     return res.status(400).json({

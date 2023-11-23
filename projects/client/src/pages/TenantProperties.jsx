@@ -86,7 +86,7 @@ function TenantProperties() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to fetch properties. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
@@ -110,7 +110,7 @@ function TenantProperties() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to delete property. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });

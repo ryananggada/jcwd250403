@@ -78,7 +78,7 @@ function TenantRooms() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to fetch rooms. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
@@ -102,7 +102,7 @@ function TenantRooms() {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to delete room. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });

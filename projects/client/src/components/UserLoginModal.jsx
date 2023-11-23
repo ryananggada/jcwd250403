@@ -19,6 +19,7 @@ import { useFormik } from 'formik';
 import { useDispatch } from 'react-redux';
 import api from '../api';
 import { login } from '../slices/auth';
+import { Link } from 'react-router-dom';
 
 function UserLoginModal({ isOpen, onClose }) {
   const dispatch = useDispatch();
@@ -53,7 +54,11 @@ function UserLoginModal({ isOpen, onClose }) {
 
       dispatch(
         login({
-          profile: { id: data.payload.id, role: data.payload.role },
+          profile: {
+            id: data.payload.id,
+            name: data.payload.name,
+            role: data.payload.role,
+          },
           token: data.token,
         })
       );
@@ -119,7 +124,9 @@ function UserLoginModal({ isOpen, onClose }) {
             />
             <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
           </FormControl>
-          <Text color="blue.400">Don't have an account? Sign up here!</Text>
+          <Link to="/user/signup">
+            <Text color="blue.400">Don't have an account? Sign up here!</Text>
+          </Link>
         </ModalBody>
 
         <ModalFooter>

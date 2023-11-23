@@ -9,6 +9,11 @@ router.post(
   userAuthValidator.applyUserAuthValidation,
   userAuthController.createUser
 );
-router.post('/login', userAuthController.loginHandler);
+router.post(
+  '/login',
+  userAuthValidator.userLoginRules,
+  userAuthValidator.applyUserAuthValidation,
+  userAuthController.loginHandler
+);
 
 module.exports = router;

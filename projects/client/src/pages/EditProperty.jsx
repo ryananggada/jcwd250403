@@ -92,7 +92,7 @@ function EditProperty() {
       toast({
         status: 'error',
         title: 'Error',
-        description: `Something went wrong: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
