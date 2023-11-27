@@ -163,7 +163,9 @@ function UserLayout({ children }) {
                 </MenuButton>
                 <MenuList>
                   <MenuItem>Transactions</MenuItem>
-                  <MenuItem>Edit Profile</MenuItem>
+                  <MenuItem>
+                    <Link to="/user/profile">Profile</Link>
+                  </MenuItem>
                   <MenuDivider />
                   <MenuItem onClick={() => dispatch(logout())}>
                     Sign Out

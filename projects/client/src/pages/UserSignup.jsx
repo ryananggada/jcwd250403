@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Button,
   Flex,
@@ -5,17 +6,26 @@ import {
   FormLabel,
   Heading,
   Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
   Stack,
   Image,
   FormErrorMessage,
+  Select,
   useToast,
 } from '@chakra-ui/react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import { SingleDatepicker } from 'chakra-dayzed-datepicker';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import api from '../api';
 
 function UserSignup() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -40,6 +50,14 @@ function UserSignup() {
     phoneNumber: Yup.string()
       .required('Phone number is required')
       .matches(phoneRegExp, 'Phone number is not valid'),
+    gender: Yup.string().required('Gender is required'),
+    birthDate: Yup.date()
+      .required('Birthday is required')
+      .test('age', 'Must be at least 13 years old', function (value) {
+        const cutoffDate = new Date();
+        cutoffDate.setFullYear(cutoffDate.getFullYear() - 13);
+        return value && value <= cutoffDate;
+      }),
   });
 
   const handleSubmit = async (values) => {
@@ -72,6 +90,8 @@ function UserSignup() {
       email: '',
       password: '',
       phoneNumber: '',
+      gender: '',
+      birthDate: new Date(),
     },
     validationSchema: signupSchema,
     onSubmit: handleSubmit,
@@ -111,15 +131,62 @@ function UserSignup() {
           </FormControl>
 
           <FormControl
+            isInvalid={formik.errors.phoneNumber && formik.touched.phoneNumber}
+          >
+            <FormLabel>Phone Number</FormLabel>
+            <Input
+              name="phoneNumber"
+              onChange={formik.handleChange}
+              type="text"
+              {...formik.getFieldProps('phoneNumber')}
+            />
+            <FormErrorMessage>{formik.errors.phoneNumber}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl
+            isInvalid={formik.errors.gender && formik.touched.gender}
+          >
+            <FormLabel>Gender</FormLabel>
+            <Select {...formik.getFieldProps('gender')}>
+              <option value="" defaultValue></option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </Select>
+            <FormErrorMessage>{formik.errors.gender}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={formik.errors.birthDate}>
+            <FormLabel>Birthday</FormLabel>
+            <SingleDatepicker
+              date={formik.values.birthDate}
+              onDateChange={(val) => {
+                formik.setFieldValue('birthDate', val);
+              }}
+              onBlur={() => formik.setFieldTouched('birthDate', true)}
+              configs={{ dateFormat: 'dd/MM/yyyy' }}
+            />
+            <FormErrorMessage>{formik.errors.birthDate}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl
             isInvalid={formik.errors.password && formik.touched.password}
           >
             <FormLabel>Password</FormLabel>
-            <Input
-              name="password"
-              onChange={formik.handleChange}
-              type="password"
-              {...formik.getFieldProps('password')}
-            />
+            <InputGroup>
+              <Input
+                name="password"
+                onChange={formik.handleChange}
+                type={showPassword ? 'text' : 'password'}
+                {...formik.getFieldProps('password')}
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label="Reveal/hide password"
+                  icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              </InputRightElement>
+            </InputGroup>
             <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
           </FormControl>
           <FormControl
@@ -128,26 +195,22 @@ function UserSignup() {
             }
           >
             <FormLabel>Confirm Password</FormLabel>
-            <Input
-              name="confirmPassword"
-              onChange={formik.handleChange}
-              type="password"
-              {...formik.getFieldProps('confirmPassword')}
-            />
+            <InputGroup>
+              <Input
+                name="confirmPassword"
+                onChange={formik.handleChange}
+                type={showConfirmPassword ? 'text' : 'password'}
+                {...formik.getFieldProps('confirmPassword')}
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label="Reveal/hide password"
+                  icon={showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                />
+              </InputRightElement>
+            </InputGroup>
             <FormErrorMessage>{formik.errors.confirmPassword}</FormErrorMessage>
-          </FormControl>
-          <FormControl
-            isInvalid={formik.errors.phoneNumber && formik.touched.phoneNumber}
-          >
-            <FormLabel>Phone Number</FormLabel>
-            <Input
-              name="phoneNumber"
-              onChange={formik.handleChange}
-              type="text"
-              placeholder="Your Phone Number"
-              {...formik.getFieldProps('phoneNumber')}
-            />
-            <FormErrorMessage>{formik.errors.phoneNumber}</FormErrorMessage>
           </FormControl>
 
           <Stack spacing={6}>

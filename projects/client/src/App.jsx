@@ -17,6 +17,8 @@ import VerifyUser from './pages/VerifyUser';
 import TenantSignup from './pages/TenantSignup';
 import TenantHome from './pages/TenantHome';
 import TenantLogin from './pages/TenantLogin';
+import UserProfile from './pages/UserProfile';
+import EditUserProfile from './pages/EditUserProfile';
 import TenantRoute from './components/TenantRoute';
 import NonTenantRoute from './components/NonTenantRoute';
 import LoggedOutRoute from './components/LoggedOutRoute';
@@ -26,6 +28,8 @@ function App() {
     <Routes>
       <Route element={<NonTenantRoute />}>
         <Route path="/" element={<Home />} />
+        <Route path="/user/profile" element={<UserProfile />} />
+        <Route path="/user/profile/edit" element={<EditUserProfile />} />
       </Route>
 
       <Route element={<TenantRoute />}>

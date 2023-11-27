@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -11,17 +12,23 @@ import {
   FormErrorMessage,
   Text,
   Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
   Button,
   useToast,
 } from '@chakra-ui/react';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import api from '../api';
 import { login } from '../slices/auth';
-import { Link } from 'react-router-dom';
 
 function UserLoginModal({ isOpen, onClose }) {
+  const [showPassword, setShowPassword] = useState(false);
+
   const dispatch = useDispatch();
   const toast = useToast();
 
@@ -116,12 +123,21 @@ function UserLoginModal({ isOpen, onClose }) {
             isInvalid={formik.errors.password && formik.touched.password}
           >
             <FormLabel>Password</FormLabel>
-            <Input
-              name="password"
-              onChange={formik.handleChange}
-              type="password"
-              {...formik.getFieldProps('password')}
-            />
+            <InputGroup>
+              <Input
+                name="password"
+                onChange={formik.handleChange}
+                type={showPassword ? 'text' : 'password'}
+                {...formik.getFieldProps('password')}
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label="Reveal/hide password"
+                  icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              </InputRightElement>
+            </InputGroup>
             <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
           </FormControl>
           <Link to="/user/signup">

@@ -5,7 +5,7 @@ const sendEmail = require('../middleware/email');
 const generateOtp = require('../middleware/otp');
 
 exports.createUser = async (req, res) => {
-  const { name, email, password, phoneNumber } = req.body;
+  const { name, email, password, phoneNumber, gender, birthDate } = req.body;
 
   try {
     const isEmailTaken = await User.findOne({ where: { email: email } });
@@ -20,6 +20,8 @@ exports.createUser = async (req, res) => {
         password: hashedPassword,
         phoneNumber,
         isVerified: false,
+        gender,
+        birthDate,
       });
 
       const otp = generateOtp();
@@ -86,7 +88,7 @@ exports.loginHandler = async (req, res) => {
 
     const payload = {
       id: user.id,
-      name: tenant.name,
+      name: user.name,
       role: 'user',
     };
 
@@ -106,6 +108,84 @@ exports.loginHandler = async (req, res) => {
   }
 };
 
+exports.getUserProfile = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const user = await User.findOne({
+      where: { id: userId },
+      attributes: ['name', 'email', 'gender', 'birthDate', 'profilePicture'],
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        message: 'User profile not found!',
+      });
+    }
+
+    return res.json({ ok: true, data: { user } });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.editUserProfile = async (req, res) => {
+  const { name, gender, email, birthDate } = req.body;
+  const userId = req.params.id;
+
+  try {
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ ok: false, message: 'User not found.' });
+    }
+
+    user.name = name;
+    user.gender = gender;
+    user.email = email;
+    user.birthDate = birthDate;
+    await user.save();
+
+    return res.json({ ok: true, data: user });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.uploadProfilePicture = async (req, res) => {
+  const userId = req.params.id;
+  const profilePicture = req.file;
+
+  try {
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ ok: false, message: 'User not found.' });
+    }
+
+    if (user.profilePicture != null) {
+      const oldProfilePicture = path.join(
+        __dirname,
+        '..',
+        'public',
+        user.picture
+      );
+
+      try {
+        await fs.unlink(oldProfilePicture);
+      } catch (error) {
+        return res.status(500).json({ ok: false, message: String(error) });
+      }
+    }
+
+    user.profilePicture = profilePicture.filename;
+    await user.save();
+
+    return res.json({ ok: true, message: 'Profile picture updated!' });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
 exports.getEmail = async (req, res) => {
   const userId = req.params.id;
 
@@ -118,7 +198,7 @@ exports.getEmail = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         ok: false,
-        message: 'Email or password is wrong!',
+        message: 'User not found!',
       });
     }
 

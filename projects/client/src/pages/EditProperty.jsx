@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Stack,
   Text,
@@ -24,6 +25,7 @@ function EditProperty() {
   const { id } = useParams();
   const toast = useToast();
   const navigate = useNavigate();
+  const profile = useSelector((state) => state.auth.profile);
 
   const [categories, setCategories] = useState([]);
 
@@ -103,7 +105,7 @@ function EditProperty() {
     initialValues: {
       name: '',
       categoryId: 1,
-      tenantId: 1,
+      tenantId: profile.id,
       description: '',
       picture: null,
     },
@@ -113,6 +115,13 @@ function EditProperty() {
   });
 
   useEffect(() => {
+    api.get('/categories').then((res) => {
+      const {
+        data: { data },
+      } = res;
+      setCategories(data);
+    });
+
     const fetchProperty = async () => {
       const response = await api.get(`/properties/${id}`);
       const {
@@ -131,14 +140,6 @@ function EditProperty() {
     };
 
     fetchProperty();
-
-    api.get('/categories').then((res) => {
-      const {
-        data: { data },
-      } = res;
-      setCategories(data);
-    });
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 

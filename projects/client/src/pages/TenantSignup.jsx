@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -9,6 +10,9 @@ import {
   FormControl,
   FormErrorMessage,
   Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
   Button,
   Image,
   Text,
@@ -16,9 +20,13 @@ import {
 } from '@chakra-ui/react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import api from '../api';
 
 function TenantSignup() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -161,12 +169,21 @@ function TenantSignup() {
             isInvalid={formik.errors.password && formik.touched.password}
           >
             <FormLabel>Password</FormLabel>
-            <Input
-              name="password"
-              onChange={formik.handleChange}
-              type="password"
-              {...formik.getFieldProps('password')}
-            />
+            <InputGroup>
+              <Input
+                name="password"
+                onChange={formik.handleChange}
+                type={showPassword ? 'text' : 'password'}
+                {...formik.getFieldProps('password')}
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label="Reveal/hide password"
+                  icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              </InputRightElement>
+            </InputGroup>
             <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
           </FormControl>
           <FormControl
@@ -175,12 +192,21 @@ function TenantSignup() {
             }
           >
             <FormLabel>Confirm Password</FormLabel>
-            <Input
-              name="confirmPassword"
-              onChange={formik.handleChange}
-              type="password"
-              {...formik.getFieldProps('confirmPassword')}
-            />
+            <InputGroup>
+              <Input
+                name="confirmPassword"
+                onChange={formik.handleChange}
+                type={showConfirmPassword ? 'text' : 'password'}
+                {...formik.getFieldProps('confirmPassword')}
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label="Reveal/hide password"
+                  icon={showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                />
+              </InputRightElement>
+            </InputGroup>
             <FormErrorMessage>{formik.errors.confirmPassword}</FormErrorMessage>
           </FormControl>
           <FormControl

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
@@ -9,16 +10,22 @@ import {
   Button,
   Heading,
   Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
   Stack,
   Text,
   useToast,
 } from '@chakra-ui/react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import api from '../api';
 import { login } from '../slices/auth';
 
 function TenantLogin() {
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
   const toast = useToast();
   const dispatch = useDispatch();
@@ -108,12 +115,21 @@ function TenantLogin() {
               isInvalid={formik.errors.password && formik.touched.password}
             >
               <FormLabel>Password</FormLabel>
-              <Input
-                name="password"
-                type="password"
-                onChange={formik.handleChange}
-                {...formik.getFieldProps('password')}
-              />
+              <InputGroup>
+                <Input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  onChange={formik.handleChange}
+                  {...formik.getFieldProps('password')}
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label="Reveal/hide password"
+                    icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                    onClick={() => setShowPassword(!showPassword)}
+                  />
+                </InputRightElement>
+              </InputGroup>
               <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
             </FormControl>
             <Stack spacing={5}>

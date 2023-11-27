@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Stack,
   Text,
@@ -21,6 +22,7 @@ import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
 function CreateProperty() {
+  const profile = useSelector((state) => state.auth.profile);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -102,7 +104,7 @@ function CreateProperty() {
     initialValues: {
       name: '',
       categoryId: 1,
-      tenantId: 1,
+      tenantId: profile.id,
       description: '',
       picture: null,
     },

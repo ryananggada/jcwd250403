@@ -1,4 +1,6 @@
 const { Op } = require('sequelize');
+const fs = require('fs/promises');
+const path = require('path');
 const { Property, Category, Tenant } = require('../models');
 
 exports.addProperty = async (req, res) => {
@@ -40,6 +42,19 @@ exports.editProperty = async (req, res) => {
     property.tenantId = tenantId;
     property.description = description;
     if (req.file) {
+      const oldPropertyPicture = path.join(
+        __dirname,
+        '..',
+        'public',
+        property.picture
+      );
+
+      try {
+        await fs.unlink(oldPropertyPicture);
+      } catch (error) {
+        return res.status(500).json({ ok: false, message: String(error) });
+      }
+
       property.picture = req.file.filename;
     }
     await property.save();
@@ -54,17 +69,41 @@ exports.deleteProperty = async (req, res) => {
   const propertyId = req.params.id;
 
   try {
-    Property.destroy({ where: { id: propertyId } }).then(function (rowDeleted) {
-      if (rowDeleted === 1) {
-        return res.json({
-          ok: true,
-          message: 'Property successfully deleted.',
-        });
-      }
+    const propertyToDelete = await Property.findOne({
+      where: { id: propertyId },
+    });
+
+    if (!propertyToDelete) {
       return res.status(404).json({
         ok: false,
         message: 'Property not found.',
       });
+    }
+
+    const rowDeleted = await Property.destroy({ where: { id: propertyId } });
+
+    if (rowDeleted === 1) {
+      const oldPropertyPicture = path.join(
+        __dirname,
+        '..',
+        'public',
+        propertyToDelete.picture
+      );
+
+      try {
+        await fs.unlink(oldPropertyPicture);
+      } catch (error) {
+        return res.status(500).json({ ok: false, message: String(error) });
+      }
+
+      return res.json({
+        ok: true,
+        message: 'Property successfully deleted.',
+      });
+    }
+    return res.status(404).json({
+      ok: false,
+      message: 'Property not found.',
     });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
