@@ -7,11 +7,6 @@ exports.propertyRules = [
     .withMessage('Category ID cannot be empty.')
     .isInt()
     .withMessage('Category ID must be a number.'),
-  check('tenantId')
-    .notEmpty()
-    .withMessage('Tenant ID cannot be empty.')
-    .isInt()
-    .withMessage('Tenant ID must be a number.'),
   check('description').notEmpty().withMessage('Description cannot be empty.'),
 ];
 

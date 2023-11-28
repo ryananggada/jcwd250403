@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   FormControl,
   FormErrorMessage,
@@ -23,19 +24,36 @@ function CreateRoom() {
   const toast = useToast();
   const navigate = useNavigate();
   const [properties, setProperties] = useState([]);
+  const [formattedPrice, setFormattedPrice] = useState('0');
+
+  const token = useSelector((state) => state.auth.token);
 
   const roomSchema = Yup.object().shape({
-    propertyId: Yup.string().required('Property is required'),
+    propertyId: Yup.number().required('Property is required'),
     roomType: Yup.string().required('Room type is required'),
     price: Yup.number()
       .required('Price is required')
-      .positive('Price should be positive'),
+      .positive('Price should be greater than 0'),
     description: Yup.string().required('Description is required'),
   });
 
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('id-ID').format(value);
+  };
+
+  const handlePriceChange = (e) => {
+    const rawValue = e.target.value.replace(/[^\d]/g, '');
+    const numericValue = rawValue === '' ? 0 : parseFloat(rawValue);
+
+    formik.setFieldValue('price', numericValue);
+    setFormattedPrice(numericValue === '' ? '0' : formatCurrency(numericValue));
+  };
+
   const handleSubmit = async (values, form) => {
     try {
-      await api.post('/rooms', values);
+      await api.post('/rooms', values, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast({
         status: 'success',
         title: 'Success',
@@ -58,7 +76,7 @@ function CreateRoom() {
 
   const formik = useFormik({
     initialValues: {
-      propertyId: 1,
+      propertyId: '',
       roomType: '',
       price: 0,
       description: '',
@@ -88,6 +106,7 @@ function CreateRoom() {
         >
           <FormLabel>Property</FormLabel>
           <Select {...formik.getFieldProps('propertyId')}>
+            <option value=""></option>
             {properties.map((property) => (
               <option key={property.id} value={property.id}>
                 {property.name}
@@ -111,17 +130,16 @@ function CreateRoom() {
           <FormErrorMessage>{formik.errors.roomType}</FormErrorMessage>
         </FormControl>
 
-        <FormControl isInvalid={formik.errors.price && formik.touched.price}>
+        <FormControl isInvalid={formik.errors.price}>
           <FormLabel>Price</FormLabel>
           <InputGroup>
             <InputLeftAddon children="Rp" />
             <Input
               name="price"
-              onChange={formik.handleChange}
-              type="number"
+              onChange={handlePriceChange}
+              type="text"
               placeholder="0"
-              step="1000"
-              {...formik.getFieldProps('price')}
+              value={formattedPrice}
             />
           </InputGroup>
           <FormErrorMessage>{formik.errors.price}</FormErrorMessage>

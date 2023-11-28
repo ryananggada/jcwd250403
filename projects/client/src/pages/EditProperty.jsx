@@ -25,7 +25,7 @@ function EditProperty() {
   const { id } = useParams();
   const toast = useToast();
   const navigate = useNavigate();
-  const profile = useSelector((state) => state.auth.profile);
+  const token = useSelector((state) => state.auth.token);
 
   const [categories, setCategories] = useState([]);
 
@@ -46,7 +46,6 @@ function EditProperty() {
   const propertySchema = Yup.object().shape({
     name: Yup.string().required('Property name is required'),
     categoryId: Yup.string().required('Category is required'),
-    tenantId: Yup.string().required('Tenant is required'),
     description: Yup.string().required('Description is required'),
     picture: Yup.mixed()
       .nullable(true)
@@ -73,12 +72,14 @@ function EditProperty() {
       const formData = new FormData();
       formData.append('name', values.name);
       formData.append('categoryId', values.categoryId);
-      formData.append('tenantId', values.tenantId);
       formData.append('description', values.description);
       formData.append('picture', values.picture);
 
       await api.put(`/properties/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
       });
       toast({
         status: 'success',
@@ -105,7 +106,6 @@ function EditProperty() {
     initialValues: {
       name: '',
       categoryId: 1,
-      tenantId: profile.id,
       description: '',
       picture: null,
     },
@@ -130,7 +130,6 @@ function EditProperty() {
 
       formik.setFieldValue('name', data.name);
       formik.setFieldValue('categoryId', data.category.id);
-      formik.setFieldValue('tenantId', data.tenant.id);
       formik.setFieldValue('description', data.description);
 
       formik.setFieldValue(

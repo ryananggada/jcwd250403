@@ -2,6 +2,7 @@ const router = require('express').Router();
 const userAuthController = require('../controller/userAuth');
 const userAuthValidator = require('../middleware/validation/userAuth');
 const { multerUpload } = require('../middleware/multer');
+const authMiddleware = require('../middleware/auth');
 
 router.post(
   '/signup',
@@ -16,12 +17,25 @@ router.post(
   userAuthController.loginHandler
 );
 router.post(
-  '/profile/:id/upload/profile-picture',
+  '/profile/upload/profile-picture',
+  authMiddleware.tokenValidator,
+  authMiddleware.userValidator,
   multerUpload.single('profilePicture'),
   userAuthController.uploadProfilePicture
 );
 router.get('/email/:id', userAuthController.getEmail);
 router.get('/profile/:id', userAuthController.getUserProfile);
-router.put('/profile/:id', userAuthController.editUserProfile);
+router.put(
+  '/profile',
+  authMiddleware.tokenValidator,
+  authMiddleware.userValidator,
+  userAuthController.editUserProfile
+);
+router.put(
+  '/profile/change-password',
+  authMiddleware.tokenValidator,
+  authMiddleware.userValidator,
+  userAuthController.changePassword
+);
 
 module.exports = router;

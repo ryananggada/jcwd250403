@@ -132,7 +132,7 @@ exports.getUserProfile = async (req, res) => {
 
 exports.editUserProfile = async (req, res) => {
   const { name, gender, email, birthDate } = req.body;
-  const userId = req.params.id;
+  const userId = req.profile.id;
 
   try {
     const user = await User.findOne({ where: { id: userId } });
@@ -153,7 +153,7 @@ exports.editUserProfile = async (req, res) => {
 };
 
 exports.uploadProfilePicture = async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.profile.id;
   const profilePicture = req.file;
 
   try {
@@ -181,6 +181,36 @@ exports.uploadProfilePicture = async (req, res) => {
     await user.save();
 
     return res.json({ ok: true, message: 'Profile picture updated!' });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.profile.id;
+
+  try {
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ ok: false, message: 'User not found.' });
+    }
+
+    const isCorrectPass = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isCorrectPass) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Old password is wrong!',
+      });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+    user.password = hashedPassword;
+    user.save();
+
+    return res.json({ ok: true, message: 'Password successfully updated.' });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }

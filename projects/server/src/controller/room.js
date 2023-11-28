@@ -1,4 +1,5 @@
 const { Room, Property } = require('../models');
+const { Op } = require('sequelize');
 
 exports.addRoom = async (req, res) => {
   const { propertyId, roomType, price, description } = req.body;
@@ -82,7 +83,7 @@ exports.getAllRooms = async (req, res) => {
     if (page || sort || search) {
       const rooms = await Room.findAndCountAll({
         where: {
-          roomType: { [Op.like]: `${search}` },
+          roomType: { [Op.like]: `%${search}%` },
         },
         attributes: { exclude: ['propertyId'] },
         include: [{ model: Property, as: 'property' }],

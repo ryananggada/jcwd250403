@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import {
   Button,
@@ -27,6 +28,8 @@ function AddAvailability() {
   const toast = useToast();
 
   const { id } = useParams();
+
+  const token = useSelector((state) => state.auth.token);
 
   const [availableDates, setAvailableDates] = useState([]);
 
@@ -57,7 +60,11 @@ function AddAvailability() {
 
   const handleSubmit = async (values, form) => {
     try {
-      await api.post(`/available-dates/${id}`, values);
+      await api.post(`/available-dates/${id}`, values, {
+        headers: {
+          Authorization: `Bearere ${token}`,
+        },
+      });
       toast({
         status: 'success',
         title: 'Success',

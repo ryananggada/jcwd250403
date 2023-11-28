@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Text,
   Button,
@@ -16,13 +17,19 @@ import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
 function EditCategory() {
+  const token = useSelector((state) => state.auth.token);
+
   const { id } = useParams();
   const toast = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (values, form) => {
     try {
-      await api.put(`/categories/${id}`, values);
+      await api.put(`/categories/${id}`, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       toast({
         status: 'success',
         title: 'Success',

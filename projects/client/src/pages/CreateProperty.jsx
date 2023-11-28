@@ -22,7 +22,7 @@ import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
 function CreateProperty() {
-  const profile = useSelector((state) => state.auth.profile);
+  const token = useSelector((state) => state.auth.token);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -47,7 +47,6 @@ function CreateProperty() {
   const propertySchema = Yup.object().shape({
     name: Yup.string().required('Property name is required'),
     categoryId: Yup.string().required('Category is required'),
-    tenantId: Yup.string().required('Tenant is required'),
     description: Yup.string().required('Description is required'),
     picture: Yup.mixed()
       .required('Picture is required')
@@ -72,12 +71,14 @@ function CreateProperty() {
       const formData = new FormData();
       formData.append('name', values.name);
       formData.append('categoryId', values.categoryId);
-      formData.append('tenantId', values.tenantId);
       formData.append('description', values.description);
       formData.append('picture', values.picture);
 
       await api.post('/properties', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
       });
       toast({
         status: 'success',
@@ -104,7 +105,6 @@ function CreateProperty() {
     initialValues: {
       name: '',
       categoryId: 1,
-      tenantId: profile.id,
       description: '',
       picture: null,
     },

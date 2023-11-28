@@ -28,6 +28,7 @@ function EditUserProfile() {
   const profilePictureRef = useRef(null);
 
   const profileId = useSelector((state) => state.auth.profile.id);
+  const token = useSelector((state) => state.auth.token);
 
   const profileSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
@@ -52,13 +53,12 @@ function EditUserProfile() {
       formData.append('profilePicture', files[0]);
 
       try {
-        await api.post(
-          `/auth/user/profile/${profileId}/upload/profile-picture`,
-          formData,
-          {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          }
-        );
+        await api.post('/auth/user/profile/upload/profile-picture', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         toast({
           status: 'success',
@@ -66,7 +66,7 @@ function EditUserProfile() {
           description: 'Your profile picture successfully updated',
           isClosable: true,
           duration: 2500,
-        })
+        });
       } catch (error) {
         toast({
           status: 'error',
@@ -81,7 +81,9 @@ function EditUserProfile() {
 
   const handleSubmit = async (values, form) => {
     try {
-      await api.put(`/auth/user/profile/${profileId}`, values);
+      await api.put('/auth/user/profile', values, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast({
         status: 'success',
         title: 'Success',

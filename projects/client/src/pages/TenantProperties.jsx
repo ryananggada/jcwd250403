@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   Stack,
@@ -6,6 +7,7 @@ import {
   Box,
   Button,
   Flex,
+  Input,
   InputGroup,
   InputLeftElement,
   Select,
@@ -31,6 +33,7 @@ import {
 import { FiSearch } from 'react-icons/fi';
 import api from '../api';
 import TenantLayout from '../components/TenantLayout';
+import useDebounce from '../hooks/useDebounce';
 
 const DeletePropertyModal = ({
   isOpen,
@@ -69,7 +72,14 @@ function TenantProperties() {
   const toast = useToast();
   const [properties, setProperties] = useState([]);
   const [modalData, setModalData] = useState({ id: 0, name: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [currentSort, setCurrentSort] = useState('ASC');
+  const [searchTerm, setSearchTerm] = useState('');
+  const querySearch = useDebounce(searchTerm, 1500);
   const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const token = useSelector((state) => state.auth.token);
 
   const handleOpenDeleteModal = ({ id, name }) => {
     setModalData({ id, name });
@@ -78,10 +88,15 @@ function TenantProperties() {
 
   const getProperties = useCallback(async () => {
     try {
-      const {
-        data: { data },
-      } = await api.get('/properties');
-      setProperties(data);
+      const { data } = await api.get('/properties', {
+        params: {
+          page: currentPage,
+          sort: currentSort,
+          search: querySearch,
+        },
+      });
+      setProperties(data.data);
+      setTotalPage(Math.ceil(data.count / 5));
     } catch (error) {
       toast({
         status: 'error',
@@ -91,20 +106,24 @@ function TenantProperties() {
         duration: 2500,
       });
     }
-  }, [toast]);
+  }, [toast, currentPage, currentSort, querySearch]);
 
   const handleDeleteProperty = async ({ id }) => {
     try {
-      await api.delete(`/properties/${id}`).then((res) => {
-        getProperties();
-        onClose();
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'Property is deleted.',
-          isClosable: true,
-          duration: 2500,
-        });
+      await api.delete(`/properties/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      getProperties();
+      onClose();
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Property is deleted.',
+        isClosable: true,
+        duration: 2500,
       });
     } catch (error) {
       toast({
@@ -115,6 +134,29 @@ function TenantProperties() {
         duration: 2500,
       });
     }
+  };
+
+  const handleChangeSort = (e) => {
+    const newValue = e.target.value;
+    setCurrentSort(newValue);
+    setCurrentPage(1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (totalPage > currentPage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handleSearchTerm = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   useEffect(() => {
@@ -141,11 +183,21 @@ function TenantProperties() {
             <InputLeftElement pointerEvents="none">
               <FiSearch color="gray.300" />
             </InputLeftElement>
+            <Input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={handleSearchTerm}
+            />
           </InputGroup>
 
           <InputGroup alignItems="center" justifyContent="end">
             <Text mr="1rem">Sort by</Text>
-            <Select width="200px">
+            <Select
+              width="200px"
+              value={currentSort}
+              onChange={handleChangeSort}
+            >
               <option value="ASC" defaultValue>
                 A-Z
               </option>
@@ -209,9 +261,11 @@ function TenantProperties() {
           </Table>
         </TableContainer>
         <Flex justifyContent="flex-end" alignItems="center">
-          <Button>{'<'}</Button>
-          <Text mx="2">1 of 1</Text>
-          <Button>{'>'}</Button>
+          <Button onClick={() => handlePrevPage()}>{'<'}</Button>
+          <Text mx="2">
+            {currentPage} of {totalPage === 0 ? 1 : totalPage}
+          </Text>
+          <Button onClick={() => handleNextPage()}>{'>'}</Button>
         </Flex>
       </Stack>
 

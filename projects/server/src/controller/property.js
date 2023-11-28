@@ -4,7 +4,8 @@ const path = require('path');
 const { Property, Category, Tenant } = require('../models');
 
 exports.addProperty = async (req, res) => {
-  const { name, categoryId, tenantId, description } = req.body;
+  const { name, categoryId, description } = req.body;
+  const tenantId = req.profile.id;
   const picture = req.file;
 
   try {
@@ -27,7 +28,8 @@ exports.addProperty = async (req, res) => {
 
 exports.editProperty = async (req, res) => {
   const propertyId = req.params.id;
-  const { name, categoryId, tenantId, description } = req.body;
+  const { name, categoryId, description } = req.body;
+  const tenantId = req.profile.id;
 
   try {
     const property = await Property.findOne({ where: { id: propertyId } });
@@ -37,9 +39,15 @@ exports.editProperty = async (req, res) => {
         .json({ ok: false, message: 'Property not found.' });
     }
 
+    if (property.tenantId !== tenantId) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Only tenant with the same ID can edit this property.',
+      });
+    }
+
     property.name = name;
     property.categoryId = categoryId;
-    property.tenantId = tenantId;
     property.description = description;
     if (req.file) {
       const oldPropertyPicture = path.join(
@@ -67,11 +75,19 @@ exports.editProperty = async (req, res) => {
 
 exports.deleteProperty = async (req, res) => {
   const propertyId = req.params.id;
+  const tenantId = req.profile.id;
 
   try {
     const propertyToDelete = await Property.findOne({
       where: { id: propertyId },
     });
+
+    if (propertyToDelete.tenantId !== tenantId) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Only tenant with the same ID can delete this property.',
+      });
+    }
 
     if (!propertyToDelete) {
       return res.status(404).json({

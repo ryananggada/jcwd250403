@@ -1,3 +1,4 @@
+import { useSelector } from 'react-redux';
 import {
   Text,
   Button,
@@ -18,9 +19,15 @@ function CreateCategory() {
   const toast = useToast();
   const navigate = useNavigate();
 
+  const token = useSelector((state) => state.auth.token);
+
   const handleSubmit = async (values, form) => {
     try {
-      await api.post(`/categories`, values);
+      await api.post(`/categories`, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       toast({
         status: 'success',
         title: 'Success',

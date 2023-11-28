@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   Box,
@@ -31,7 +32,7 @@ import {
 import api from '../api';
 import { FiSearch } from 'react-icons/fi';
 import TenantLayout from '../components/TenantLayout';
-import useDebounced from '../hooks/useDebounce';
+import useDebounce from '../hooks/useDebounce';
 
 const DeleteCategoryModal = ({
   isOpen,
@@ -68,6 +69,8 @@ const DeleteCategoryModal = ({
 };
 
 function TenantCategories() {
+  const token = useSelector((state) => state.auth.token);
+
   const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [modalData, setModalData] = useState({ id: 0, location: '' });
@@ -75,7 +78,7 @@ function TenantCategories() {
   const [totalPage, setTotalPage] = useState(1);
   const [currentSort, setCurrentSort] = useState('ASC');
   const [searchTerm, setSearchTerm] = useState('');
-  const querySearch = useDebounced(searchTerm, 1500);
+  const querySearch = useDebounce(searchTerm, 1500);
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const handleOpenDeleteModal = ({ id, location }) => {
@@ -107,7 +110,11 @@ function TenantCategories() {
 
   const handleDeleteCategory = async ({ id }) => {
     try {
-      await api.delete(`/categories/${id}`);
+      await api.delete(`/categories/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       getCategories();
       onClose();
       toast({

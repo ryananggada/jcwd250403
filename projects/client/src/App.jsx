@@ -21,15 +21,24 @@ import UserProfile from './pages/UserProfile';
 import EditUserProfile from './pages/EditUserProfile';
 import TenantRoute from './components/TenantRoute';
 import NonTenantRoute from './components/NonTenantRoute';
+import UserRoute from './components/UserRoute';
 import LoggedOutRoute from './components/LoggedOutRoute';
+import UserChangePassword from './pages/UserChangePassword';
 
 function App() {
   return (
     <Routes>
       <Route element={<NonTenantRoute />}>
         <Route path="/" element={<Home />} />
+      </Route>
+
+      <Route element={<UserRoute />}>
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/user/profile/edit" element={<EditUserProfile />} />
+        <Route
+          path="/user/profile/change-password"
+          element={<UserChangePassword />}
+        />
       </Route>
 
       <Route element={<TenantRoute />}>

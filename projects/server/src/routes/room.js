@@ -1,11 +1,29 @@
 const router = require('express').Router();
 const roomController = require('../controller/room');
 const roomValidator = require('../middleware/validation/room');
+const authMiddleware = require('../middleware/auth');
 
 router.get('/', roomController.getAllRooms);
-router.post('/', roomValidator.applyRoomValidation, roomController.addRoom);
+router.post(
+  '/',
+  authMiddleware.tokenValidator,
+  authMiddleware.tenantValidator,
+  roomValidator.applyRoomValidation,
+  roomController.addRoom
+);
 router.get('/:id', roomController.getSingleRoom);
-router.put('/:id', roomValidator.applyRoomValidation, roomController.editRoom);
-router.delete('/:id', roomController.deleteRoom);
+router.put(
+  '/:id',
+  authMiddleware.tokenValidator,
+  authMiddleware.tenantValidator,
+  roomValidator.applyRoomValidation,
+  roomController.editRoom
+);
+router.delete(
+  '/:id',
+  authMiddleware.tokenValidator,
+  authMiddleware.tenantValidator,
+  roomController.deleteRoom
+);
 
 module.exports = router;

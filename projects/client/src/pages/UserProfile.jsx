@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Box, Stack, Text, Center, Avatar, Button } from '@chakra-ui/react';
+import {
+  Box,
+  Stack,
+  Text,
+  Center,
+  Avatar,
+  Button,
+  ButtonGroup,
+} from '@chakra-ui/react';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
 
@@ -69,11 +77,24 @@ function UserProfile() {
             })}
           </Text>
 
-          <Link to="/user/profile/edit">
-            <Button variant="outline" colorScheme="black">
-              Edit Profile
-            </Button>
-          </Link>
+          <Box display={{ base: 'block', sm: 'flex' }}>
+            <Link to="/user/profile/edit">
+              <Button
+                variant="outline"
+                colorScheme="black"
+                mr={{ base: 0, sm: 4 }}
+                mb={{ base: 4, sm: 0 }}
+              >
+                Edit Profile
+              </Button>
+            </Link>
+
+            <Link to="/user/profile/change-password">
+              <Button variant="outline" colorScheme="black">
+                Change Password
+              </Button>
+            </Link>
+          </Box>
         </Stack>
       </Box>
     </UserLayout>
