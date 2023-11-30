@@ -23,7 +23,6 @@ router.post(
   multerUpload.single('profilePicture'),
   userAuthController.uploadProfilePicture
 );
-router.get('/email/:id', userAuthController.getEmail);
 router.get('/profile/:id', userAuthController.getUserProfile);
 router.put(
   '/profile',
@@ -37,5 +36,7 @@ router.put(
   authMiddleware.userValidator,
   userAuthController.changePassword
 );
+router.post('/forgot-password', userAuthController.forgotPassword);
+router.put('/reset-password/:token', userAuthController.resetPassword);
 
 module.exports = router;

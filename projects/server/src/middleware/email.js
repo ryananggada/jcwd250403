@@ -14,7 +14,7 @@ const sendEmail = async (option) => {
     from: 'Pintuku Support<no-reply@pintuku.com>',
     to: option.email,
     subject: option.subject,
-    text: option.message,
+    html: option.html,
   };
 
   await transporter.sendMail(emailOptions);

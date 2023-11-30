@@ -1,8 +1,13 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { User, Verify } = require('../models');
+const { User, Verify, ResetPass } = require('../models');
 const sendEmail = require('../middleware/email');
 const generateOtp = require('../middleware/otp');
+const fs = require('fs');
+const fsp = require('fs/promises');
+const hbs = require('handlebars');
+const crypto = require('crypto');
+const path = require('path');
 
 exports.createUser = async (req, res) => {
   const { name, email, password, phoneNumber, gender, birthDate } = req.body;
@@ -25,20 +30,31 @@ exports.createUser = async (req, res) => {
       });
 
       const otp = generateOtp();
+      const token = crypto.randomBytes(16).toString('hex');
 
       await Verify.create({
         userId: result.id,
+        token: token,
         otp: otp,
         attemptsLeft: 4,
       });
 
-      const message = `Welcome to Pintuku! In order to verify your account, please input this OTP code: ${otp}.`;
-
       try {
+        const templateRaw = fs.readFileSync(
+          path.join(__dirname, '..', 'templates', 'verifyOtp.html'),
+          'utf-8'
+        );
+        const templateCompile = hbs.compile(templateRaw);
+        const emailHtml = templateCompile({
+          domain: process.env.WHITELISTED_DOMAIN,
+          token: token,
+          otp: otp,
+        });
+
         await sendEmail({
           email: email,
           subject: 'Verify your Pintuku account',
-          message,
+          html: emailHtml,
         });
         return res.json({ ok: true, data: result });
       } catch (error) {
@@ -171,7 +187,7 @@ exports.uploadProfilePicture = async (req, res) => {
       );
 
       try {
-        await fs.unlink(oldProfilePicture);
+        await fsp.unlink(oldProfilePicture);
       } catch (error) {
         return res.status(500).json({ ok: false, message: String(error) });
       }
@@ -216,23 +232,81 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-exports.getEmail = async (req, res) => {
-  const userId = req.params.id;
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
 
   try {
-    const user = await User.findOne({
-      where: { id: userId },
-      attributes: ['email'],
-    });
-
+    const user = await User.findOne({ where: { email: email } });
     if (!user) {
-      return res.status(404).json({
-        ok: false,
-        message: 'User not found!',
-      });
+      return res.status(404).json({ ok: false, message: 'User not found!' });
     }
 
-    return res.json({ ok: true, data: { user } });
+    await ResetPass.destroy({
+      where: { userId: user.id },
+    });
+
+    const resetToken = crypto.randomBytes(16).toString('hex');
+
+    await ResetPass.create({
+      userId: user.id,
+      token: resetToken,
+    });
+
+    try {
+      const templateRaw = fs.readFileSync(
+        path.join(__dirname, '..', 'templates', 'forgotPassword.html'),
+        'utf-8'
+      );
+      const templateCompile = hbs.compile(templateRaw);
+      const emailHtml = templateCompile({
+        domain: process.env.WHITELISTED_DOMAIN,
+        resetToken: resetToken,
+      });
+
+      await sendEmail({
+        email: user.email,
+        subject: 'Reset your Pintuku account password',
+        html: emailHtml,
+      });
+      return res.json({
+        ok: true,
+        message: 'Reset password link has been sent to your email.',
+      });
+    } catch (error) {
+      return res.status(400).json({ ok: false, message: String(error) });
+    }
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { newPassword } = req.body;
+  const resetToken = req.params.token;
+
+  try {
+    const resetPass = await ResetPass.findOne({ where: { token: resetToken } });
+    if (!resetPass) {
+      return res
+        .status(404)
+        .json({ ok: false, message: 'Reset password token not found!' });
+    }
+
+    const user = await User.findOne({ where: { id: resetPass.userId } });
+    if (!user) {
+      return res.status(404).json({ ok: false, message: 'User not found!' });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+    user.password = hashedPassword;
+    user.save();
+    await ResetPass.destroy({ where: { token: resetToken } });
+
+    return res.json({
+      ok: true,
+      message: 'Password successfully reset to new one!',
+    });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }

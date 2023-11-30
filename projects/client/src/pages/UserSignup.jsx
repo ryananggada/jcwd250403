@@ -62,9 +62,7 @@ function UserSignup() {
 
   const handleSubmit = async (values) => {
     try {
-      const {
-        data: { data },
-      } = await api.post('/auth/user/signup', values);
+      await api.post('/auth/user/signup', values);
       toast({
         status: 'success',
         title: 'Success',
@@ -72,7 +70,7 @@ function UserSignup() {
         isClosable: true,
         duration: 7500,
       });
-      navigate(`/verify/${data.id}`);
+      navigate('/');
     } catch (error) {
       toast({
         status: 'error',

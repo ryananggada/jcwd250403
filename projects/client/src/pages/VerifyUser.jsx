@@ -17,14 +17,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
 
 function VerifyUser() {
-  const { id } = useParams();
+  const { token } = useParams();
   const [email, setEmail] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (values, form) => {
     try {
-      const res = await api.post(`/verify/${id}`, values);
+      const res = await api.post(`/verify/${token}`, values);
       toast({
         status: 'success',
         title: 'Success',
@@ -47,7 +47,7 @@ function VerifyUser() {
 
   const resendOtp = async () => {
     try {
-      const res = await api.get(`/verify/resend/${id}`);
+      const res = await api.get(`/verify/resend/${token}`);
       toast({
         status: 'success',
         title: 'Success',
@@ -74,10 +74,11 @@ function VerifyUser() {
   });
 
   useEffect(() => {
-    api.get(`/auth/user/email/${id}`).then((res) => {
+    api.get(`/verify/email/${token}`).then((res) => {
+      console.log(res.data);
       setEmail(res.data.data.user.email);
     });
-  }, [id]);
+  }, [token]);
 
   return (
     <Flex minH="100vh" align="center" justify="center">

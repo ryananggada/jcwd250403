@@ -1,20 +1,26 @@
 const { User, Verify } = require('../models');
 const generateOtp = require('../middleware/otp');
+const sendEmail = require('../middleware/email');
+const fs = require('fs');
+const path = require('path');
+const hbs = require('handlebars');
 
 exports.verifyAccount = async (req, res) => {
   const { otp } = req.body;
-  const userId = req.params.id;
+  const token = req.params.token;
 
   try {
-    const user = await User.findOne({ where: { id: userId } });
-
-    if (user.isVerified) {
+    const verify = await Verify.findOne({ where: { token: token } });
+    if (!verify) {
       return res
-        .status(400)
-        .json({ ok: false, message: 'User is already verified!' });
+        .status(404)
+        .json({ ok: false, message: 'Verification not found!' });
     }
 
-    const verify = await Verify.findOne({ where: { userId: userId } });
+    const user = await User.findOne({ where: { id: verify.userId } });
+    if (!user) {
+      return res.status(404).json({ ok: false, message: 'User not found!' });
+    }
 
     if (
       verify.updatedAt.getTime() >=
@@ -30,7 +36,7 @@ exports.verifyAccount = async (req, res) => {
       user.isVerified = true;
       user.save();
 
-      await Verify.destroy({ where: { userId: userId } });
+      await Verify.destroy({ where: { userId: user.id } });
 
       return res.json({
         ok: true,
@@ -47,16 +53,20 @@ exports.verifyAccount = async (req, res) => {
 };
 
 exports.resendOtp = async (req, res) => {
-  const userId = req.params.id;
+  const token = req.params.token;
 
   try {
-    const user = await User.findOne({ where: { id: userId } });
-    const verify = await Verify.findOne({ where: { userId: userId } });
+    const verify = await Verify.findOne({ where: { token: token } });
 
-    if (user.isVerified) {
+    if (!verify) {
       return res
-        .status(400)
-        .json({ ok: false, message: 'User is already verified!' });
+        .status(404)
+        .json({ ok: false, message: 'Verification not found!' });
+    }
+
+    const user = await User.findOne({ where: { id: verify.userId } });
+    if (!user) {
+      return res.status(404).json({ ok: false, meessage: 'User not found!' });
     }
 
     if (new Date().toDateString() > verify.updatedAt.toDateString()) {
@@ -75,18 +85,48 @@ exports.resendOtp = async (req, res) => {
     verify.otp = generateOtp();
     verify.save();
 
-    const message = `Welcome to Pintuku! In order to verify your account, please input this OTP code: ${verify.otp}.`;
+    try {
+      const templateRaw = fs.readFileSync(
+        path.join(__dirname, '..', 'templates', 'verifyOtp.html'),
+        'utf-8'
+      );
+      const templateCompile = hbs.compile(templateRaw);
+      const emailHtml = templateCompile({
+        domain: process.env.WHITELISTED_DOMAIN,
+        token: token,
+        otp: verify.otp,
+      });
 
-    await sendEmail({
-      email: user.email,
-      subject: 'Verify your Pintuku account',
-      message,
-    });
+      await sendEmail({
+        email: user.email,
+        subject: 'Verify your Pintuku account',
+        html: emailHtml,
+      });
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ ok: false, message: 'Failed to resend OTP email.' });
+    }
 
     return res.json({
       ok: true,
       message: 'New OTP has been resend, please check your email.',
     });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.getUserEmail = async (req, res) => {
+  const token = req.params.token;
+
+  try {
+    const verify = await Verify.findOne({
+      where: { token: token },
+      attributes: ['userId'],
+      include: [{ model: User, as: 'user', attributes: ['email'] }],
+    });
+    return res.json({ ok: true, data: verify });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }

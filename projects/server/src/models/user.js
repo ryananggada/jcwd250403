@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Order, { foreignKey: 'userId' });
       User.hasMany(models.Review, { foreignKey: 'userId' });
       User.hasOne(models.Verify, { foreignKey: 'userId' });
+      User.hasOne(models.ResetPass, { foreignKey: 'userId' });
     }
   }
   User.init(

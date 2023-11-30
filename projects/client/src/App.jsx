@@ -24,6 +24,8 @@ import NonTenantRoute from './components/NonTenantRoute';
 import UserRoute from './components/UserRoute';
 import LoggedOutRoute from './components/LoggedOutRoute';
 import UserChangePassword from './pages/UserChangePassword';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -60,10 +62,12 @@ function App() {
       </Route>
 
       <Route element={<LoggedOutRoute />}>
-        <Route path="/verify/:id" element={<VerifyUser />} />
+        <Route path="/user/verify/:token" element={<VerifyUser />} />
         <Route path="/tenant/signup" element={<TenantSignup />} />
         <Route path="/tenant/login" element={<TenantLogin />} />
         <Route path="/user/signup" element={<UserSignup />} />
+        <Route path="/user/forgot-password" element={<ForgotPassword />} />
+        <Route path="/user/reset-password/:token" element={<ResetPassword />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
   Box,
@@ -134,7 +134,11 @@ function TenantLogin() {
             </FormControl>
             <Stack spacing={5}>
               <Text color="blue.400">Forgot password?</Text>
-              <Text color="blue.400">Don't have an account? Create here</Text>
+              <Link to="/tenant/signup">
+                <Text as="u" color="blue.400">
+                  Don't have an account? Create here
+                </Text>
+              </Link>
               <Button type="submit" colorScheme="blue">
                 Sign in
               </Button>

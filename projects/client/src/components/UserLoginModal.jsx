@@ -16,6 +16,7 @@ import {
   InputRightElement,
   IconButton,
   Button,
+  Stack,
   useToast,
 } from '@chakra-ui/react';
 import * as Yup from 'yup';
@@ -140,9 +141,18 @@ function UserLoginModal({ isOpen, onClose }) {
             </InputGroup>
             <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
           </FormControl>
-          <Link to="/user/signup">
-            <Text color="blue.400">Don't have an account? Sign up here!</Text>
-          </Link>
+          <Stack spacing={5}>
+            <Link to="/user/signup">
+              <Text as="u" color="blue.400">
+                Don't have an account? Sign up here!
+              </Text>
+            </Link>
+            <Link to="/user/forgot-password">
+              <Text as="u" color="blue.400">
+                Forget your password?
+              </Text>
+            </Link>
+          </Stack>
         </ModalBody>
 
         <ModalFooter>
