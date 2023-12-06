@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Box,
@@ -20,6 +20,7 @@ import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
+import { jwtDecode } from 'jwt-decode';
 
 function EditUserProfile() {
   const toast = useToast();
@@ -27,8 +28,10 @@ function EditUserProfile() {
 
   const profilePictureRef = useRef(null);
 
-  const profileId = useSelector((state) => state.auth.profile.id);
   const token = useSelector((state) => state.auth.token);
+  const payload = jwtDecode(token);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const profileSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
@@ -80,6 +83,7 @@ function EditUserProfile() {
   };
 
   const handleSubmit = async (values, form) => {
+    setIsLoading(true);
     try {
       await api.put('/auth/user/profile', values, {
         headers: { Authorization: `Bearer ${token}` },
@@ -101,6 +105,8 @@ function EditUserProfile() {
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,7 +128,7 @@ function EditUserProfile() {
         data: {
           data: { user },
         },
-      } = await api.get(`/auth/user/profile/${profileId}`);
+      } = await api.get(`/auth/user/profile/${payload.id}`);
 
       formik.setFieldValue('name', user.name);
       formik.setFieldValue('email', user.email);
@@ -137,7 +143,7 @@ function EditUserProfile() {
 
     getUserProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId]);
+  }, [payload.id]);
 
   return (
     <UserLayout>
@@ -226,7 +232,12 @@ function EditUserProfile() {
             <FormErrorMessage>{formik.errors.birthDate}</FormErrorMessage>
           </FormControl>
 
-          <Button type="submit" isDisabled={!(formik.isValid && formik.dirty)}>
+          <Button
+            type="submit"
+            isDisabled={!(formik.isValid && formik.dirty)}
+            isLoading={isLoading}
+            loadingText="Submitting"
+          >
             Save changes
           </Button>
         </Stack>

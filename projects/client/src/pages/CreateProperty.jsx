@@ -27,6 +27,7 @@ function CreateProperty() {
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -67,6 +68,8 @@ function CreateProperty() {
   });
 
   const handleSubmit = async (values, form) => {
+    setIsLoading(true);
+
     try {
       const formData = new FormData();
       formData.append('name', values.name);
@@ -98,6 +101,8 @@ function CreateProperty() {
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -199,7 +204,13 @@ function CreateProperty() {
           <FormErrorMessage>{formik.errors.picture}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green">
+        <Button
+          type="submit"
+          isDisabled={!(formik.isValid && formik.dirty)}
+          colorScheme="green"
+          isLoading={isLoading}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </Stack>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Text,
@@ -21,7 +22,11 @@ function CreateCategory() {
 
   const token = useSelector((state) => state.auth.token);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (values, form) => {
+    setIsLoading(true);
+
     try {
       await api.post(`/categories`, values, {
         headers: {
@@ -46,6 +51,8 @@ function CreateCategory() {
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,7 +89,13 @@ function CreateCategory() {
           <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green" maxWidth="156px">
+        <Button
+          type="submit"
+          colorScheme="green"
+          maxWidth="156px"
+          isLoading={isLoading}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </Stack>

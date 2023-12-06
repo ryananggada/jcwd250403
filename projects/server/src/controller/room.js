@@ -133,3 +133,19 @@ exports.getSingleRoom = async (req, res) => {
     return res.status(500).json({ ok: false, message: String(error) });
   }
 };
+
+exports.getRoomsByPropertyId = async (req, res) => {
+  const propertyId = req.params.id;
+
+  try {
+    const rooms = await Room.findAll({
+      where: { propertyId: propertyId },
+      attributes: { exclude: ['propertyId'] },
+      include: [{ model: Property, as: 'property' }],
+    });
+
+    return res.json({ ok: true, data: rooms });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};

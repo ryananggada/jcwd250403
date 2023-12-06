@@ -9,6 +9,7 @@ exports.addAvailableDate = async (req, res) => {
       roomId,
       date,
       pricePercentage,
+      isAvailable: true,
     });
 
     return res.json({

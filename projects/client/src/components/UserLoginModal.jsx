@@ -156,7 +156,9 @@ function UserLoginModal({ isOpen, onClose }) {
         </ModalBody>
 
         <ModalFooter>
-          <Button type="submit">Login</Button>
+          <Button type="submit" isDisabled={!(formik.isValid && formik.dirty)}>
+            Login
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

@@ -1,14 +1,22 @@
+import { jwtDecode } from 'jwt-decode';
 import { useSelector } from 'react-redux';
 import { Outlet, Navigate } from 'react-router-dom';
 
-function NonTenantRoute({ children, ...rest }) {
-  const profile = useSelector((state) => state.auth.profile);
+function NonTenantRoute({ children }) {
+  const token = useSelector((state) => state.auth.token);
 
-  if (!profile || !profile.role || profile.role === 'user') {
+  if (!token) {
     return <Outlet />;
   }
 
-  return profile.role !== 'tenant' ? <Outlet /> : <Navigate to="/tenant" />;
+  const payload = jwtDecode(token);
+  const currentDate = new Date();
+
+  if (payload.exp * 1000 > currentDate.getTime() && payload.role === 'tenant') {
+    return <Navigate to="/tenant" />;
+  }
+
+  return <Outlet />;
 }
 
 export default NonTenantRoute;

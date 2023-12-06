@@ -32,6 +32,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import UserLoginModal from './UserLoginModal';
 import { logout } from '../slices/auth';
 import { Link } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 const Links = ['View Orders'];
 
@@ -105,10 +106,24 @@ const SocialButton = ({ children, label, href }) => {
 
 function UserLayout({ children }) {
   const dispatch = useDispatch();
-  const profile = useSelector((state) => state.auth.profile);
+  const token = useSelector((state) => state.auth.token);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const loginModal = useDisclosure();
+
+  function isLogin(token) {
+    if (!token) {
+      return false;
+    }
+
+    const payload = jwtDecode(token);
+    const currentDate = new Date();
+
+    if (payload.exp * 1000 > currentDate.getTime() && payload.role === 'user') {
+      return true;
+    }
+    return false;
+  }
 
   return (
     <Box display="flex" flexDirection="column" minH="100vh">
@@ -135,7 +150,7 @@ function UserLayout({ children }) {
             <ButtonGroup>
               <Link to="/tenant/login">
                 <Button
-                  display={profile === null ? 'block' : 'none'}
+                  display={!isLogin(token) ? 'block' : 'none'}
                   variant="outline"
                   colorScheme="blue"
                 >
@@ -143,14 +158,14 @@ function UserLayout({ children }) {
                 </Button>
               </Link>
               <Button
-                display={profile === null ? 'block' : 'none'}
+                display={!isLogin(token) ? 'block' : 'none'}
                 colorScheme="blue"
                 onClick={loginModal.onOpen}
               >
                 Login
               </Button>
             </ButtonGroup>
-            <Box display={profile !== null ? 'block' : 'none'}>
+            <Box display={isLogin(token) ? 'block' : 'none'}>
               <Menu>
                 <MenuButton
                   as={Button}
@@ -189,7 +204,7 @@ function UserLayout({ children }) {
         </Drawer>
       </Box>
 
-      {children}
+      <Box p={4}>{children}</Box>
 
       <Box marginTop="auto">
         <Stack

@@ -29,6 +29,7 @@ function EditRoom() {
 
   const [properties, setProperties] = useState([]);
   const [formattedPrice, setFormattedPrice] = useState('0');
+  const [isLoading, setIsLoading] = useState(false);
 
   const roomSchema = Yup.object().shape({
     propertyId: Yup.string().required('Property is required'),
@@ -52,6 +53,7 @@ function EditRoom() {
   };
 
   const handleSubmit = async (values, form) => {
+    setIsLoading(true);
     try {
       await api.put(`/rooms/${id}`, values, {
         headers: {
@@ -75,6 +77,8 @@ function EditRoom() {
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,7 +184,13 @@ function EditRoom() {
           <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green">
+        <Button
+          type="submit"
+          isDisabled={!(formik.isValid && formik.dirty)}
+          colorScheme="green"
+          isLoading={isLoading}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </Stack>

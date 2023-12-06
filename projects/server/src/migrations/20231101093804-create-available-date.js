@@ -19,6 +19,9 @@ module.exports = {
       pricePercentage: {
         type: Sequelize.DOUBLE,
       },
+      isAvailable: {
+        type: Sequelize.BOOLEAN,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

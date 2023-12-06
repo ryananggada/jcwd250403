@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         as: 'property',
       });
       Room.hasMany(models.Order, { foreignKey: 'roomId' });
+      Room.hasMany(models.AvailableDate, {
+        foreignKey: 'roomId',
+        as: 'availableDates',
+      });
     }
   }
   Room.init(

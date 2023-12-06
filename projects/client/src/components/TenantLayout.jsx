@@ -31,6 +31,7 @@ import {
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { logout } from '../slices/auth';
+import { jwtDecode } from 'jwt-decode';
 
 const LinkItems = [
   { name: 'Home', icon: FiHome, path: '/tenant' },
@@ -168,7 +169,8 @@ const MobileNav = ({ onOpen, tenantName, ...rest }) => {
 
 function TenantLayout({ children }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const profile = useSelector((state) => state.auth.profile);
+  const token = useSelector((state) => state.auth.token);
+  const payload = jwtDecode(token);
 
   return (
     <Box minH="100vh">
@@ -188,7 +190,7 @@ function TenantLayout({ children }) {
           <SidebarContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
-      <MobileNav onOpen={onOpen} tenantName={profile.name} />
+      <MobileNav onOpen={onOpen} tenantName={payload.name} />
       <Box ml={{ base: 0, md: 60 }} p="8">
         {children}
       </Box>

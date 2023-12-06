@@ -1,22 +1,42 @@
-import { useState } from 'react';
-import { Flex, FormControl, FormLabel, Select, Button } from '@chakra-ui/react';
-import { RangeDatepicker } from 'chakra-dayzed-datepicker';
+import { useState, useEffect } from 'react';
+import { Box, FormControl, FormLabel, Select, Button } from '@chakra-ui/react';
+import { SingleDatepicker } from 'chakra-dayzed-datepicker';
 import UserLayout from '../components/UserLayout';
 import { FiSearch } from 'react-icons/fi';
+import api from '../api';
 
 function Home() {
-  const [selectedDates, setSelectedDates] = useState([new Date(), new Date()]);
+  const [date, setDate] = useState(new Date());
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    api.get('/categories').then((res) => {
+      const {
+        data: { data },
+      } = res;
+      setCategories(data);
+    });
+  }, []);
 
   return (
     <UserLayout>
-      <Flex align="center">
+      <Box
+        display="flex"
+        flexDirection={{ base: 'column', md: 'row' }}
+        alignItems="flex-end"
+        justifyContent="center"
+        boxShadow="md"
+        bg="gray.50"
+        p={4}
+        gap={6}
+      >
         <FormControl>
-          <FormLabel>Date</FormLabel>
-          <RangeDatepicker
-            selectedDates={selectedDates}
-            onDateChange={setSelectedDates}
+          <FormLabel>Start Date</FormLabel>
+          <SingleDatepicker
+            date={date}
+            onDateChange={setDate}
             configs={{
-              dateFormat: 'dd/MM/yyyy',
+              dateFormat: 'dd MMM yyyy',
             }}
           />
         </FormControl>
@@ -24,11 +44,11 @@ function Home() {
         <FormControl>
           <FormLabel>Location</FormLabel>
           <Select>
-            <option value="Jakarta" defaultValue>
-              Jakarta
-            </option>
-            <option value="Bali">Bali</option>
-            <option value="Medan">Medan</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.location}
+              </option>
+            ))}
           </Select>
         </FormControl>
 
@@ -36,11 +56,11 @@ function Home() {
           leftIcon={<FiSearch />}
           variant="outline"
           colorScheme="black"
-          width="156px"
+          w="156px"
         >
           Search
         </Button>
-      </Flex>
+      </Box>
     </UserLayout>
   );
 }

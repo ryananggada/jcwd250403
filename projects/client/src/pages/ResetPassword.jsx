@@ -122,7 +122,13 @@ function ResetPassword() {
               </FormErrorMessage>
             </FormControl>
 
-            <Button type="submit" variant="outline" colorScheme="black" mt={4}>
+            <Button
+              type="submit"
+              isDisabled={!(formik.isValid && formik.dirty)}
+              variant="outline"
+              colorScheme="black"
+              mt={4}
+            >
               Reset password
             </Button>
           </Stack>

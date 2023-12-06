@@ -11,6 +11,7 @@ router.post(
   roomValidator.applyRoomValidation,
   roomController.addRoom
 );
+router.get('/property/:id', roomController.getRoomsByPropertyId);
 router.get('/:id', roomController.getSingleRoom);
 router.put(
   '/:id',

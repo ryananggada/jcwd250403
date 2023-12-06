@@ -4,6 +4,7 @@ const propertyValidator = require('../middleware/validation/property');
 const authMiddleware = require('../middleware/auth');
 const { multerUpload } = require('../middleware/multer');
 
+router.get('/with-rooms', propertyController.getPropertiesFromLowestPrice);
 router.get('/', propertyController.getAllProperties);
 router.post(
   '/',

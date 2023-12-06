@@ -26,12 +26,18 @@ import LoggedOutRoute from './components/LoggedOutRoute';
 import UserChangePassword from './pages/UserChangePassword';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import PropertiesList from './pages/PropertiesList';
+import PropertyDetails from './pages/PropertyDetails';
+import BookProperty from './pages/BookProperty';
 
 function App() {
   return (
     <Routes>
       <Route element={<NonTenantRoute />}>
         <Route path="/" element={<Home />} />
+        <Route path="/properties" element={<PropertiesList />} />
+        <Route path="/properties/:id" element={<PropertyDetails />} />
+        <Route path="/properties/book/:id" element={<BookProperty />} />
       </Route>
 
       <Route element={<UserRoute />}>

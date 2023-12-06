@@ -1,20 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import {
-  Box,
-  Stack,
-  Text,
-  Center,
-  Avatar,
-  Button,
-  ButtonGroup,
-} from '@chakra-ui/react';
+import { Box, Stack, Text, Center, Avatar, Button } from '@chakra-ui/react';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
+import { jwtDecode } from 'jwt-decode';
 
 function UserProfile() {
-  const profileId = useSelector((state) => state.auth.profile.id);
+  const token = useSelector((state) => state.auth.token);
+  const payload = jwtDecode(token);
 
   const [userProfile, setUserProfile] = useState({});
 
@@ -22,11 +16,11 @@ function UserProfile() {
     const getUserProfile = async () => {
       const {
         data: { data },
-      } = await api.get(`/auth/user/profile/${profileId}`);
+      } = await api.get(`/auth/user/profile/${payload.id}`);
       setUserProfile(data.user);
     };
     getUserProfile();
-  }, [profileId]);
+  }, [payload.id]);
 
   return (
     <UserLayout>

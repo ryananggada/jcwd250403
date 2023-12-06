@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {
   Text,
@@ -23,7 +23,10 @@ function EditCategory() {
   const toast = useToast();
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (values, form) => {
+    setIsLoading(true);
     try {
       await api.put(`/categories/${id}`, values, {
         headers: {
@@ -48,6 +51,8 @@ function EditCategory() {
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -99,7 +104,14 @@ function EditCategory() {
           <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green" maxWidth="156px">
+        <Button
+          type="submit"
+          isDisabled={!(formik.isValid && formik.dirty)}
+          colorScheme="green"
+          maxWidth="156px"
+          isLoading={isLoading}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </Stack>

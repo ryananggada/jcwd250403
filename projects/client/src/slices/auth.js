@@ -1,9 +1,28 @@
 import { createSlice } from '@reduxjs/toolkit';
-import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+
+function isValidToken(token) {
+  if (!token) {
+    localStorage.removeItem('token');
+    return false;
+  }
+
+  const payload = jwtDecode(token);
+  const currentDate = new Date();
+
+  if (payload.exp * 1000 > currentDate.getTime()) {
+    return true;
+  }
+
+  localStorage.removeItem('token');
+  return false;
+}
 
 const initialState = {
-  profile: Cookies.get('profile') ? JSON.parse(Cookies.get('profile')) : null,
-  token: Cookies.get('token') ?? null,
+  token:
+    localStorage.getItem('token') && isValidToken(localStorage.getItem('token'))
+      ? localStorage.getItem('token')
+      : null,
 };
 
 const authSlice = createSlice({
@@ -11,17 +30,12 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login(state, action) {
-      const { profile, token } = action.payload;
-      state.profile = profile;
+      const { token } = action.payload;
       state.token = token;
-      let twoHour = 1 / 12;
-      Cookies.set('profile', JSON.stringify(profile), { expires: twoHour });
-      Cookies.set('token', token, { expires: twoHour });
+      localStorage.setItem('token', token);
     },
     logout(state) {
-      Cookies.remove('profile');
-      Cookies.remove('token');
-      state.profile = null;
+      localStorage.removeItem('token');
       state.token = null;
     },
   },

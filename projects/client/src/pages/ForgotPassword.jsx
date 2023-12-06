@@ -84,7 +84,13 @@ function ForgotPassword() {
               <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
             </FormControl>
 
-            <Button type="submit" variant="outline" colorScheme="black" mt={4}>
+            <Button
+              type="submit"
+              isDisabled={!(formik.isValid && formik.dirty)}
+              variant="outline"
+              colorScheme="black"
+              mt={4}
+            >
               Send reset link
             </Button>
           </Stack>

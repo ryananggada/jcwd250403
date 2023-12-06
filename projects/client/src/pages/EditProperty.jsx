@@ -28,6 +28,7 @@ function EditProperty() {
   const token = useSelector((state) => state.auth.token);
 
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': ['.jpeg', '.png'] },
@@ -68,6 +69,7 @@ function EditProperty() {
   });
 
   const handleSubmit = async (values, form) => {
+    setIsLoading(true);
     try {
       const formData = new FormData();
       formData.append('name', values.name);
@@ -99,6 +101,8 @@ function EditProperty() {
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -220,7 +224,13 @@ function EditProperty() {
           <FormErrorMessage>{formik.errors.picture}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green">
+        <Button
+          type="submit"
+          isDisabled={!(formik.isValid && formik.dirty)}
+          colorScheme="green"
+          isLoading={isLoading}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </Stack>

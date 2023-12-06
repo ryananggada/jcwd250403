@@ -139,7 +139,11 @@ function TenantLogin() {
                   Don't have an account? Create here
                 </Text>
               </Link>
-              <Button type="submit" colorScheme="blue">
+              <Button
+                type="submit"
+                isDisabled={!(formik.isValid && formik.dirty)}
+                colorScheme="blue"
+              >
                 Sign in
               </Button>
             </Stack>

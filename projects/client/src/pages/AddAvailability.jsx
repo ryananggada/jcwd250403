@@ -127,7 +127,7 @@ function AddAvailability() {
               minDate={firstDayOfMonth}
               maxDate={oneMonthInFuture}
               disabledDates={disablePastDates()}
-              configs={{ dateFormat: 'dd/MM/yyyy' }}
+              configs={{ dateFormat: 'dd MMM yyyy' }}
             />
           </FormControl>
           <FormControl>
@@ -143,7 +143,11 @@ function AddAvailability() {
               <option value="0.25">25%</option>
             </Select>
           </FormControl>
-          <Button maxWidth="256px" colorScheme="green" type="submit">
+          <Button
+            maxWidth="256px"
+            colorScheme="green"
+            isDisabled={!(formik.isValid && formik.dirty)}
+          >
             Add available date
           </Button>
         </Stack>

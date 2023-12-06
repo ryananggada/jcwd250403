@@ -109,7 +109,7 @@ exports.loginHandler = async (req, res) => {
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-      expiresIn: '2h',
+      expiresIn: '24h',
     });
 
     return res.json({

@@ -161,7 +161,7 @@ function UserSignup() {
                 formik.setFieldValue('birthDate', val);
               }}
               onBlur={() => formik.setFieldTouched('birthDate', true)}
-              configs={{ dateFormat: 'dd/MM/yyyy' }}
+              configs={{ dateFormat: 'dd MMM yyyy' }}
             />
             <FormErrorMessage>{formik.errors.birthDate}</FormErrorMessage>
           </FormControl>
