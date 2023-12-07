@@ -68,7 +68,9 @@ const SidebarContent = ({ onClose, isLogin, token, ...rest }) => {
       {...rest}
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
+        <Link to="/">
+          <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
+        </Link>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
 
@@ -151,7 +153,9 @@ function UserLayout({ children }) {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems="center">
-            <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
+            <Link to="/">
+              <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
+            </Link>
             <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
               {Links.map((link) => (
                 <NavLink key={link}>{link}</NavLink>

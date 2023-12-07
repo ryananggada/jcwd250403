@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, createSearchParams } from 'react-router-dom';
 import {
   Box,
   FormControl,
@@ -9,6 +9,8 @@ import {
   Heading,
 } from '@chakra-ui/react';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
+import { format } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 import UserLayout from '../components/UserLayout';
 import { FiSearch } from 'react-icons/fi';
 import api from '../api';
@@ -21,6 +23,13 @@ function Home() {
 
   const handleChangeLocation = (e) => {
     setLocation(e.target.value);
+  };
+
+  const dateConverter = (inputDate) => {
+    const targetTimeZone = 'Asia/Jakarta';
+    const zonedTime = utcToZonedTime(inputDate, targetTimeZone);
+    const formattedDateString = format(zonedTime, 'yyyy-MM-dd');
+    return formattedDateString;
   };
 
   useEffect(() => {
@@ -83,16 +92,25 @@ function Home() {
               <FormLabel>Location</FormLabel>
               <Select value={location} onChange={handleChangeLocation}>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
+                  <option key={category.id} value={category.location}>
                     {category.location}
                   </option>
                 ))}
               </Select>
             </FormControl>
             <Link
-              to={`/properties?location=${location}&startDate=${
-                date.toISOString().split('T')[0]
-              }`}
+              to={{
+                pathname: '/properties',
+                search: `?${createSearchParams({
+                  location: location,
+                  start_date: dateConverter(date),
+                })}`,
+              }}
+              /*
+              to={`/properties?location=${location}&start_date=${dateConverter(
+                date
+              )}`}
+              */
             >
               <Button
                 leftIcon={<FiSearch />}

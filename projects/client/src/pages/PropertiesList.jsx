@@ -11,6 +11,8 @@ import {
   Select,
   Button,
 } from '@chakra-ui/react';
+import { format } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
 import { Link, useSearchParams } from 'react-router-dom';
 import UserLayout from '../components/UserLayout';
@@ -18,13 +20,25 @@ import api from '../api';
 import useDebounce from '../hooks/useDebounce';
 
 function PropertiesList() {
+  const dateConverter = (inputDate) => {
+    const targetTimeZone = 'Asia/Jakarta';
+    const zonedTime = utcToZonedTime(inputDate, targetTimeZone);
+    const formattedDateString = format(zonedTime, 'yyyy-MM-dd');
+    return formattedDateString;
+  };
+
   const [searchParams, setSearchParams] = useSearchParams({
     location: '',
     sort: 'name-asc',
     name: '',
+    start_date: dateConverter(new Date()),
   });
 
-  const [currentStartDate, setCurrentStartDate] = useState(new Date());
+  const [currentStartDate, setCurrentStartDate] = useState(
+    searchParams.has('start_date')
+      ? new Date(searchParams.get('start_date'))
+      : new Date()
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -34,33 +48,33 @@ function PropertiesList() {
   const [categories, setCategories] = useState([]);
 
   const getProperties = useCallback(async () => {
-    try {
-      const { data } = await api.get('/properties/with-rooms', {
-        params: {
-          page: currentPage,
-          startDate: currentStartDate,
-          sort: searchParams.get('sort'),
-          search: querySearch,
-          location: searchParams.get('location'),
-        },
-      });
-      setProperties(data.data);
-      setTotalPage(Math.ceil(data.count / 6));
-    } catch (error) {}
+    const { data } = await api.get('/properties/with-rooms', {
+      params: {
+        page: currentPage,
+        startDate: currentStartDate,
+        sort: searchParams.get('sort'),
+        search: querySearch,
+        location: searchParams.get('location'),
+      },
+    });
+    setProperties(data.data);
+    setTotalPage(Math.ceil(data.count / 6));
   }, [currentPage, currentStartDate, querySearch, searchParams]);
 
   const handleChangeLocation = (e) => {
     setSearchParams((prev) => {
-      prev.set('location', e.target.value);
-      return prev;
+      const newParams = new URLSearchParams(prev);
+      newParams.set('location', e.target.value);
+      return newParams;
     });
     setCurrentPage(1);
   };
 
   const handleChangeSort = (e) => {
     setSearchParams((prev) => {
-      prev.set('sort', e.target.value);
-      return prev;
+      const newParams = new URLSearchParams(prev);
+      newParams.set('sort', e.target.value);
+      return newParams;
     });
     setCurrentPage(1);
   };
@@ -79,11 +93,20 @@ function PropertiesList() {
 
   const handleSearchTerm = (e) => {
     setSearchParams((prev) => {
-      prev.set('name', e.target.value);
-      return prev;
+      const newParams = new URLSearchParams(prev);
+      newParams.set('name', e.target.value);
+      return newParams;
     });
     setCurrentPage(1);
   };
+
+  useEffect(() => {
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('start_date', dateConverter(currentStartDate));
+      return newParams;
+    });
+  }, [currentStartDate, searchParams, setSearchParams]);
 
   useEffect(() => {
     api.get('/categories').then((res) => {
@@ -91,10 +114,13 @@ function PropertiesList() {
         data: { data },
       } = res;
       setCategories(data);
-      setSearchParams((prev) => {
-        prev.set('location', data[0].location);
-        return prev;
-      });
+      if (searchParams.get('location') === '') {
+        setSearchParams((prev) => {
+          const newParams = new URLSearchParams(prev);
+          newParams.set('location', data[0].location);
+          return newParams;
+        });
+      }
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
