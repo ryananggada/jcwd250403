@@ -86,6 +86,9 @@ function TenantRooms() {
           sort: currentSort,
           search: querySearch,
         },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setRooms(data.data);
       setTotalPage(Math.ceil(data.count / 5));
@@ -98,7 +101,7 @@ function TenantRooms() {
         duration: 2500,
       });
     }
-  }, [toast, currentPage, currentSort, querySearch]);
+  }, [currentPage, currentSort, querySearch, token, toast]);
 
   const handleDeleteRoom = async ({ id }) => {
     try {
@@ -201,8 +204,8 @@ function TenantRooms() {
           <Table>
             <Thead>
               <Tr>
-                <Th>Property</Th>
                 <Th>Room Type</Th>
+                <Th>Property</Th>
                 <Th>Price</Th>
                 <Th>Description</Th>
                 <Th></Th>
@@ -216,8 +219,8 @@ function TenantRooms() {
               ) : (
                 rooms.map((room) => (
                   <Tr key={room.id}>
-                    <Td>{room.property.name}</Td>
                     <Td>{room.roomType}</Td>
+                    <Td>{room.property.name}</Td>
                     <Td>
                       Rp {new Intl.NumberFormat('id-ID').format(room.price)}
                     </Td>

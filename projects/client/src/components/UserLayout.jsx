@@ -20,6 +20,7 @@ import {
   Drawer,
   DrawerContent,
   CloseButton,
+  useMediaQuery,
 } from '@chakra-ui/react';
 import {
   FiX,
@@ -54,7 +55,7 @@ const NavLink = ({ children }) => {
   );
 };
 
-const SidebarContent = ({ onClose, ...rest }) => {
+const SidebarContent = ({ onClose, isLogin, token, ...rest }) => {
   return (
     <Box
       transition="3s ease"
@@ -75,6 +76,15 @@ const SidebarContent = ({ onClose, ...rest }) => {
         {Links.map((link) => (
           <NavLink key={link}>{link}</NavLink>
         ))}
+        <Link to="/tenant/login">
+          <Button
+            display={!isLogin(token) ? 'block' : 'none'}
+            variant="outline"
+            colorScheme="blue"
+          >
+            Register Property
+          </Button>
+        </Link>
       </Stack>
     </Box>
   );
@@ -107,6 +117,8 @@ const SocialButton = ({ children, label, href }) => {
 function UserLayout({ children }) {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
+
+  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const loginModal = useDisclosure();
@@ -148,15 +160,17 @@ function UserLayout({ children }) {
           </HStack>
           <Flex alignItems="center">
             <ButtonGroup>
-              <Link to="/tenant/login">
-                <Button
-                  display={!isLogin(token) ? 'block' : 'none'}
-                  variant="outline"
-                  colorScheme="blue"
-                >
-                  Register Property
-                </Button>
-              </Link>
+              {isLargerThan768 && (
+                <Link to="/tenant/login">
+                  <Button
+                    display={!isLogin(token) ? 'block' : 'none'}
+                    variant="outline"
+                    colorScheme="blue"
+                  >
+                    Register Property
+                  </Button>
+                </Link>
+              )}
               <Button
                 display={!isLogin(token) ? 'block' : 'none'}
                 colorScheme="blue"
@@ -199,7 +213,7 @@ function UserLayout({ children }) {
           size="full"
         >
           <DrawerContent>
-            <SidebarContent onClose={onClose} />
+            <SidebarContent onClose={onClose} isLogin={isLogin} token={token} />
           </DrawerContent>
         </Drawer>
       </Box>

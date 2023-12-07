@@ -94,6 +94,9 @@ function TenantProperties() {
           sort: currentSort,
           search: querySearch,
         },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setProperties(data.data);
       setTotalPage(Math.ceil(data.count / 5));
@@ -106,7 +109,7 @@ function TenantProperties() {
         duration: 2500,
       });
     }
-  }, [toast, currentPage, currentSort, querySearch]);
+  }, [currentPage, currentSort, querySearch, token, toast]);
 
   const handleDeleteProperty = async ({ id }) => {
     try {

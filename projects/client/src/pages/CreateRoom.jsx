@@ -90,13 +90,19 @@ function CreateRoom() {
   });
 
   useEffect(() => {
-    api.get('/properties').then((res) => {
-      const {
-        data: { data },
-      } = res;
-      setProperties(data);
-    });
-  }, []);
+    api
+      .get('/properties', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        const {
+          data: { data },
+        } = res;
+        setProperties(data);
+      });
+  }, [token]);
 
   return (
     <TenantLayout>
@@ -104,6 +110,20 @@ function CreateRoom() {
         <Text fontSize="2xl" fontWeight="bold">
           Create New Room
         </Text>
+
+        <FormControl
+          isInvalid={formik.errors.roomType && formik.touched.roomType}
+        >
+          <FormLabel>Room Type</FormLabel>
+          <Input
+            name="roomType"
+            onChange={formik.handleChange}
+            type="text"
+            placeholder="Room type"
+            {...formik.getFieldProps('roomType')}
+          />
+          <FormErrorMessage>{formik.errors.roomType}</FormErrorMessage>
+        </FormControl>
 
         <FormControl
           isInvalid={formik.errors.propertyId && formik.touched.propertyId}
@@ -118,20 +138,6 @@ function CreateRoom() {
             ))}
           </Select>
           <FormErrorMessage>{formik.errors.propertyId}</FormErrorMessage>
-        </FormControl>
-
-        <FormControl
-          isInvalid={formik.errors.roomType && formik.touched.roomType}
-        >
-          <FormLabel>Room Type</FormLabel>
-          <Input
-            name="roomType"
-            onChange={formik.handleChange}
-            type="text"
-            placeholder="Room type"
-            {...formik.getFieldProps('roomType')}
-          />
-          <FormErrorMessage>{formik.errors.roomType}</FormErrorMessage>
         </FormControl>
 
         <FormControl isInvalid={formik.errors.price}>

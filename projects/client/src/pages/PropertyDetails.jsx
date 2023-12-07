@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import {
   Box,
@@ -10,19 +11,28 @@ import {
   Button,
   Icon,
   Center,
+  FormControl,
+  FormLabel,
+  useToast,
 } from '@chakra-ui/react';
+import { RangeDatepicker } from 'chakra-dayzed-datepicker';
 import { FiMapPin } from 'react-icons/fi';
 import UserLayout from '../components/UserLayout';
 import api from '../api';
 
 function PropertyDetails() {
+  const token = useSelector((state) => state.auth.token);
+
+  const toast = useToast();
+
   const { id } = useParams();
   const [property, setProperty] = useState({});
   const [rooms, setRooms] = useState([]);
 
-  const [nameQuery, setNameQuery] = useState('');
-  const [locationFilter, setLocationFilter] = useState('');
-  const [sortBy, setSortBy] = useState('A-Z');
+  const [selectedDates, setSelectedDates] = useState([
+    new Date(),
+    new Date().setDate(new Date().getDate() + 1),
+  ]);
 
   useEffect(() => {
     api.get(`/properties/${id}`).then((res) => {
@@ -56,6 +66,16 @@ function PropertyDetails() {
         </Stack>
 
         <Box>
+          <FormControl maxWidth="576px">
+            <FormLabel>Date</FormLabel>
+            <RangeDatepicker
+              selectedDates={selectedDates}
+              onDateChange={setSelectedDates}
+              configs={{
+                dateFormat: 'dd MMM yyyy',
+              }}
+            />
+          </FormControl>
           <Text fontSize="2xl" fontWeight="semibold" my={4}>
             Rooms
           </Text>
@@ -75,7 +95,8 @@ function PropertyDetails() {
                   </Text>
                   <Text>{room.description}</Text>
                   <Text>
-                    Rp {new Intl.NumberFormat('id-ID').format(room.price)} / day
+                    Rp {new Intl.NumberFormat('id-ID').format(room.price)} /
+                    night
                   </Text>
                   <Link to={`/properties/book/${room.id}`}>
                     <Button

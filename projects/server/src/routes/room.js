@@ -3,7 +3,12 @@ const roomController = require('../controller/room');
 const roomValidator = require('../middleware/validation/room');
 const authMiddleware = require('../middleware/auth');
 
-router.get('/', roomController.getAllRooms);
+router.get(
+  '/',
+  authMiddleware.tokenValidator,
+  authMiddleware.tenantValidator,
+  roomController.getAllRooms
+);
 router.post(
   '/',
   authMiddleware.tokenValidator,

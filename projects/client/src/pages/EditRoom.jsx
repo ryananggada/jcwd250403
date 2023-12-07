@@ -110,12 +110,18 @@ function EditRoom() {
 
     fetchRoom();
 
-    api.get('/properties').then((res) => {
-      const {
-        data: { data },
-      } = res;
-      setProperties(data);
-    });
+    api
+      .get('/properties', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        const {
+          data: { data },
+        } = res;
+        setProperties(data);
+      });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -126,20 +132,6 @@ function EditRoom() {
         <Text fontSize="2xl" fontWeight="bold">
           Edit Room
         </Text>
-
-        <FormControl
-          isInvalid={formik.errors.propertyId && formik.touched.propertyId}
-        >
-          <FormLabel>Property</FormLabel>
-          <Select {...formik.getFieldProps('propertyId')}>
-            {properties.map((property) => (
-              <option key={property.id} value={property.id}>
-                {property.name}
-              </option>
-            ))}
-          </Select>
-          <FormErrorMessage>{formik.errors.propertyId}</FormErrorMessage>
-        </FormControl>
 
         <FormControl
           isInvalid={formik.errors.roomType && formik.touched.roomType}
@@ -153,6 +145,20 @@ function EditRoom() {
             {...formik.getFieldProps('roomType')}
           />
           <FormErrorMessage>{formik.errors.roomType}</FormErrorMessage>
+        </FormControl>
+
+        <FormControl
+          isInvalid={formik.errors.propertyId && formik.touched.propertyId}
+        >
+          <FormLabel>Property</FormLabel>
+          <Select {...formik.getFieldProps('propertyId')}>
+            {properties.map((property) => (
+              <option key={property.id} value={property.id}>
+                {property.name}
+              </option>
+            ))}
+          </Select>
+          <FormErrorMessage>{formik.errors.propertyId}</FormErrorMessage>
         </FormControl>
 
         <FormControl isInvalid={formik.errors.price}>

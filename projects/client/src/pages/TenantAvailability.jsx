@@ -11,18 +11,25 @@ import {
   Td,
   Button,
 } from '@chakra-ui/react';
+import { useSelector } from 'react-redux';
 import TenantLayout from '../components/TenantLayout';
 import { Link } from 'react-router-dom';
 import api from '../api';
 
 function TenantAvailability() {
+  const token = useSelector((state) => state.auth.token);
+
   const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
     const getRooms = async () => {
       const {
         data: { data },
-      } = await api.get('/rooms');
+      } = await api.get('/rooms', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setRooms(data);
     };
 
@@ -57,7 +64,9 @@ function TenantAvailability() {
                   <Tr key={room.id}>
                     <Td>{room.property.name}</Td>
                     <Td>{room.roomType}</Td>
-                    <Td>{room.price}</Td>
+                    <Td>
+                      Rp {new Intl.NumberFormat('id-ID').format(room.price)}
+                    </Td>
                     <Td>{room.description}</Td>
                     <Td isNumeric>
                       <Link to={`/tenant/availabilities/add/${room.id}`}>

@@ -78,6 +78,7 @@ exports.deleteRoom = async (req, res) => {
 
 exports.getAllRooms = async (req, res) => {
   const { page, sort = '', search = '' } = req.query;
+  const tenantId = req.profile.id;
 
   try {
     if (page || sort || search) {
@@ -86,8 +87,11 @@ exports.getAllRooms = async (req, res) => {
           roomType: { [Op.like]: `%${search}%` },
         },
         attributes: { exclude: ['propertyId'] },
-        include: [{ model: Property, as: 'property' }],
-        order: [['roomType', sort ? sort : 'ASC']],
+        include: [{ model: Property, as: 'property', where: { tenantId } }],
+        order: [
+          ['propertyId', 'ASC'],
+          ['roomType', sort ? sort : 'ASC'],
+        ],
         offset: 5 * ((page ? page : 1) - 1),
         limit: 5,
       });
@@ -101,7 +105,7 @@ exports.getAllRooms = async (req, res) => {
 
     const rooms = await Room.findAll({
       attributes: { exclude: ['propertyId'] },
-      include: [{ model: Property, as: 'property' }],
+      include: [{ model: Property, as: 'property', where: { tenantId } }],
     });
     return res.json({ ok: true, data: rooms });
   } catch (error) {

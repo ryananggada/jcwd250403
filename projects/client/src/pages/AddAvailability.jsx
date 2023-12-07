@@ -62,7 +62,7 @@ function AddAvailability() {
     try {
       await api.post(`/available-dates/${id}`, values, {
         headers: {
-          Authorization: `Bearere ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       toast({

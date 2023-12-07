@@ -134,12 +134,14 @@ exports.deleteProperty = async (req, res) => {
 
 exports.getAllProperties = async (req, res) => {
   const { page, sort = '', search = '' } = req.query;
+  const tenantId = req.profile.id;
 
   try {
     if (page || sort || search) {
       const properties = await Property.findAndCountAll({
         where: {
           name: { [Op.like]: `%${search}%` },
+          tenantId,
         },
         order: [['name', sort ? sort : 'ASC']],
         offset: 5 * ((page ? page : 1) - 1),
@@ -164,6 +166,7 @@ exports.getAllProperties = async (req, res) => {
         { model: Category, as: 'category' },
         { model: Tenant, as: 'tenant' },
       ],
+      where: { tenantId },
     });
     return res.json({ ok: true, data: properties });
   } catch (error) {
