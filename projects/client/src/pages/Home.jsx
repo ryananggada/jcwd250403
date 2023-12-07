@@ -98,29 +98,25 @@ function Home() {
                 ))}
               </Select>
             </FormControl>
-            <Link
-              to={{
-                pathname: '/properties',
-                search: `?${createSearchParams({
-                  location: location,
-                  start_date: dateConverter(date),
-                })}`,
-              }}
-              /*
-              to={`/properties?location=${location}&start_date=${dateConverter(
-                date
-              )}`}
-              */
+
+            <Button
+              leftIcon={<FiSearch />}
+              variant="outline"
+              colorScheme="black"
+              w="156px"
             >
-              <Button
-                leftIcon={<FiSearch />}
-                variant="outline"
-                colorScheme="black"
-                w="156px"
+              <Link
+                to={{
+                  pathname: '/properties',
+                  search: `?${createSearchParams({
+                    location: location,
+                    start_date: dateConverter(date),
+                  })}`,
+                }}
               >
                 Search
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </Box>
         </Box>
       </Box>

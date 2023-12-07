@@ -1,4 +1,4 @@
-const { Room, Property } = require('../models');
+const { Room, Property, AvailableDate } = require('../models');
 const { Op } = require('sequelize');
 
 exports.addRoom = async (req, res) => {
@@ -140,12 +140,19 @@ exports.getSingleRoom = async (req, res) => {
 
 exports.getRoomsByPropertyId = async (req, res) => {
   const propertyId = req.params.id;
+  const { startDate, endDate } = req.query;
 
   try {
     const rooms = await Room.findAll({
       where: { propertyId: propertyId },
-      attributes: { exclude: ['propertyId'] },
-      include: [{ model: Property, as: 'property' }],
+      include: [
+        {
+          model: AvailableDate,
+          as: 'availableDates',
+          where: { date: { [Op.between]: [startDate, endDate] } },
+          required: false,
+        },
+      ],
     });
 
     return res.json({ ok: true, data: rooms });

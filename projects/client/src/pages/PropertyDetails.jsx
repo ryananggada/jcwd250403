@@ -39,10 +39,14 @@ function PropertyDetails() {
       setProperty(res.data.data);
     });
 
-    api.get(`/rooms/property/${id}`).then((res) => {
-      setRooms(res.data.data);
-    });
-  }, [id]);
+    api
+      .get(`/rooms/property/${id}`, {
+        params: { startDate: selectedDates[0], endDate: selectedDates[1] },
+      })
+      .then((res) => {
+        setRooms(res.data.data);
+      });
+  }, [selectedDates, id]);
 
   return (
     <UserLayout>
@@ -88,7 +92,13 @@ function PropertyDetails() {
             gap={2}
           >
             {rooms.map((room) => (
-              <GridItem border="1px" borderColor="black" borderRadius={4} p={3}>
+              <GridItem
+                border="1px"
+                borderColor="black"
+                borderRadius={4}
+                p={3}
+                key={room.id}
+              >
                 <Stack>
                   <Text fontSize="xl" fontWeight="medium">
                     {room.roomType}
@@ -98,15 +108,18 @@ function PropertyDetails() {
                     Rp {new Intl.NumberFormat('id-ID').format(room.price)} /
                     night
                   </Text>
-                  <Link to={`/properties/book/${room.id}`}>
-                    <Button
-                      alignSelf="flex-end"
-                      colorScheme="black"
-                      variant="outline"
-                    >
-                      Rent now
-                    </Button>
-                  </Link>
+
+                  <Button
+                    alignSelf="flex-end"
+                    colorScheme="black"
+                    variant="outline"
+                  >
+                    <Link to={`/properties/book/${room.id}`}>
+                      {room.availableDates.length === 0
+                        ? 'Sold out'
+                        : 'Rent now'}
+                    </Link>
+                  </Button>
                 </Stack>
               </GridItem>
             ))}

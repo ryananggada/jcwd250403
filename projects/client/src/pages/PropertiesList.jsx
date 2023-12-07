@@ -42,7 +42,7 @@ function PropertiesList() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-  const querySearch = useDebounce(searchParams.get('name'), 1000);
+  const querySearch = useDebounce(searchParams.get('name'), 500);
 
   const [properties, setProperties] = useState([]);
   const [categories, setCategories] = useState([]);
