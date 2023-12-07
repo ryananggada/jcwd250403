@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Image,
@@ -17,12 +17,15 @@ import {
 } from '@chakra-ui/react';
 import { RangeDatepicker } from 'chakra-dayzed-datepicker';
 import { FiMapPin } from 'react-icons/fi';
+import { jwtDecode } from 'jwt-decode';
 import UserLayout from '../components/UserLayout';
 import api from '../api';
 
 function PropertyDetails() {
   const token = useSelector((state) => state.auth.token);
+  const payload = token !== null ? jwtDecode(token) : '';
 
+  const navigate = useNavigate();
   const toast = useToast();
 
   const { id } = useParams();
@@ -113,12 +116,21 @@ function PropertyDetails() {
                     alignSelf="flex-end"
                     colorScheme="black"
                     variant="outline"
+                    onClick={() => {
+                      if (token == null || payload.role !== 'user') {
+                        toast({
+                          status: 'error',
+                          title: 'Error',
+                          description: 'Only registered user can book!',
+                          isClosable: true,
+                          duration: 2500,
+                        });
+                      } else {
+                        navigate(`/properties/book/${room.id}`);
+                      }
+                    }}
                   >
-                    <Link to={`/properties/book/${room.id}`}>
-                      {room.availableDates.length === 0
-                        ? 'Sold out'
-                        : 'Rent now'}
-                    </Link>
+                    {room.availableDates.length === 0 ? 'Sold out' : 'Rent now'}
                   </Button>
                 </Stack>
               </GridItem>
