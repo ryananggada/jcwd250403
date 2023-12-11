@@ -185,7 +185,9 @@ function UserLayout({ children }) {
                   <Avatar size="sm" src="" />
                 </MenuButton>
                 <MenuList>
-                  <MenuItem>View Orders</MenuItem>
+                  <Link to="/user/orders">
+                    <MenuItem>View Orders</MenuItem>
+                  </Link>
                   <Link to="/user/profile">
                     <MenuItem>Profile</MenuItem>
                   </Link>

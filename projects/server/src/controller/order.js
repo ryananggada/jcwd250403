@@ -95,6 +95,33 @@ exports.cancelOrder = async (req, res) => {
   }
 };
 
+exports.getOrdersAsUser = async (req, res) => {
+  const { page, sort = '', status = '', date = new Date() } = req.query;
+  const userId = req.params.id;
+
+  try {
+    if (page || sort || status || date) {
+      const orders = await Order.findAndCountAll({
+        where: {
+          userId,
+          status: { [Op.like]: `%${status}%` },
+          startDate: { [Op.eq]: date },
+        },
+        order: [[sort, 'DESC']],
+        offset: 5 * ((page ? page : 1) - 1),
+        limit: 5,
+      });
+
+      return res.json({ ok: true, count: orders.count, data: orders.rows });
+    }
+
+    const orders = await Order.findAll({ where: { userId } });
+    return res.json({ ok: true, data: orders });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
 exports.getOrdersAsTenant = async (req, res) => {
   const tenantId = req.params.id;
 
