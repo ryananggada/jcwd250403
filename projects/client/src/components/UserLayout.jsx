@@ -35,8 +35,6 @@ import { logout } from '../slices/auth';
 import { Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
-const Links = ['View Orders'];
-
 const NavLink = ({ children }) => {
   return (
     <Box
@@ -75,9 +73,6 @@ const SidebarContent = ({ onClose, isLogin, token, ...rest }) => {
       </Flex>
 
       <Stack as="nav" spacing={4} pl={4}>
-        {Links.map((link) => (
-          <NavLink key={link}>{link}</NavLink>
-        ))}
         <Link to="/tenant/login">
           <Button
             display={!isLogin(token) ? 'block' : 'none'}
@@ -156,11 +151,6 @@ function UserLayout({ children }) {
             <Link to="/">
               <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
             </Link>
-            <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
-              {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
-              ))}
-            </HStack>
           </HStack>
           <Flex alignItems="center">
             <ButtonGroup>
@@ -195,7 +185,7 @@ function UserLayout({ children }) {
                   <Avatar size="sm" src="" />
                 </MenuButton>
                 <MenuList>
-                  <MenuItem>Transactions</MenuItem>
+                  <MenuItem>View Orders</MenuItem>
                   <Link to="/user/profile">
                     <MenuItem>Profile</MenuItem>
                   </Link>

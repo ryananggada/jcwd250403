@@ -1,5 +1,5 @@
-const { Room, Property, AvailableDate } = require('../models');
-const { Op } = require('sequelize');
+const { Room, Property, AvailableDate, Category } = require('../models');
+const { Op, Sequelize } = require('sequelize');
 
 exports.addRoom = async (req, res) => {
   const { propertyId, roomType, price, description } = req.body;
@@ -122,7 +122,16 @@ exports.getSingleRoom = async (req, res) => {
         id: roomId,
       },
       attributes: { exclude: ['propertyId'] },
-      include: [{ model: Property, as: 'property' }],
+      include: [
+        {
+          model: Property,
+          as: 'property',
+          attributes: { exclude: ['categoryId'] },
+          include: [
+            { model: Category, as: 'category', attributes: ['location'] },
+          ],
+        },
+      ],
     });
 
     if (!room) {
@@ -142,6 +151,20 @@ exports.getRoomsByPropertyId = async (req, res) => {
   const propertyId = req.params.id;
   const { startDate, endDate } = req.query;
 
+  const dt = new Date(Date.parse(endDate) - 24 * 60 * 60 * 1000);
+  const year = dt.getFullYear();
+  const month = `0${dt.getMonth() + 1}`.slice(-2);
+  const day = `0${dt.getDate()}`.slice(-2);
+
+  const newEndDate = `${year}-${month}-${day}`;
+
+  function getNumberOfDays(startDate, endDate) {
+    const start = new Date(Date.parse(startDate));
+    const end = new Date(Date.parse(endDate));
+    const oneDay = 24 * 60 * 60 * 1000;
+    return Math.round(Math.abs((end - start) / oneDay));
+  }
+
   try {
     const rooms = await Room.findAll({
       where: { propertyId: propertyId },
@@ -149,13 +172,34 @@ exports.getRoomsByPropertyId = async (req, res) => {
         {
           model: AvailableDate,
           as: 'availableDates',
-          where: { date: { [Op.between]: [startDate, endDate] } },
-          required: false,
+          where: {
+            date: { [Op.between]: [startDate, newEndDate] },
+            isAvailable: true,
+          },
         },
       ],
+      group: ['Room.id'],
+      having: Sequelize.literal(
+        `COUNT(DISTINCT availableDates.date) = ${getNumberOfDays(
+          startDate,
+          endDate
+        )}`
+      ),
     });
 
-    return res.json({ ok: true, data: rooms });
+    const roomsWithTotalPrice = rooms.map((room) => {
+      const basePrice = room.price;
+      const totalPrice = room.availableDates.reduce((acc, availableDate) => {
+        return acc + basePrice * (1 + availableDate.pricePercentage);
+      }, 0);
+
+      return {
+        ...room.toJSON(),
+        totalPrice: totalPrice,
+      };
+    });
+
+    return res.json({ ok: true, data: roomsWithTotalPrice });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }

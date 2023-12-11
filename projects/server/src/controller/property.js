@@ -182,8 +182,8 @@ exports.getSingleProperty = async (req, res) => {
       where: { id: propertyId },
       attributes: { exclude: ['categoryId', 'tenantId'] },
       include: [
-        { model: Category, as: 'category' },
-        { model: Tenant, as: 'tenant' },
+        { model: Category, as: 'category', attributes: ['id', 'location'] },
+        { model: Tenant, as: 'tenant', attributes: ['id', 'name'] },
       ],
     });
 

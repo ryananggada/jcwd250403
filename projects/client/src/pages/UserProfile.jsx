@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Box, Stack, Text, Center, Avatar, Button } from '@chakra-ui/react';
+import { format } from 'date-fns';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
 import { jwtDecode } from 'jwt-decode';
@@ -64,11 +65,7 @@ function UserProfile() {
             Birthday
           </Text>
           <Text align="left">
-            {new Date(userProfile.birthDate).toLocaleDateString('en-AU', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+            {format(new Date(userProfile.birthDate), 'd MMMM yyyy')}
           </Text>
 
           <Box display={{ base: 'block', sm: 'flex' }}>

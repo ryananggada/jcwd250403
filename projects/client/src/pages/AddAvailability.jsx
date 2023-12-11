@@ -127,7 +127,7 @@ function AddAvailability() {
               minDate={firstDayOfMonth}
               maxDate={oneMonthInFuture}
               disabledDates={disablePastDates()}
-              configs={{ dateFormat: 'dd MMM yyyy' }}
+              configs={{ dateFormat: 'd MMM yyyy' }}
             />
           </FormControl>
           <FormControl>

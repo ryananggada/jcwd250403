@@ -29,6 +29,9 @@ import ResetPassword from './pages/ResetPassword';
 import PropertiesList from './pages/PropertiesList';
 import PropertyDetails from './pages/PropertyDetails';
 import BookProperty from './pages/BookProperty';
+import OrderCreated from './pages/OrderCreated';
+import UserOrderList from './pages/UserOrderList';
+import UserOrderDetails from './pages/UserOrderDetails';
 
 function App() {
   return (
@@ -37,16 +40,19 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/properties" element={<PropertiesList />} />
         <Route path="/properties/:id" element={<PropertyDetails />} />
-        <Route path="/properties/book/:id" element={<BookProperty />} />
       </Route>
 
       <Route element={<UserRoute />}>
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/user/profile/edit" element={<EditUserProfile />} />
+        <Route path="/user/orders" element={<UserOrderList />} />
+        <Route path="/user/orders/:id" element={<UserOrderDetails />} />
         <Route
           path="/user/profile/change-password"
           element={<UserChangePassword />}
         />
+        <Route path="/properties/book/:id" element={<BookProperty />} />
+        <Route path="/order-created" element={<OrderCreated />} />
       </Route>
 
       <Route element={<TenantRoute />}>

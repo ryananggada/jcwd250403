@@ -227,7 +227,7 @@ function EditUserProfile() {
                 formik.setFieldValue('birthDate', val);
               }}
               onBlur={() => formik.setFieldTouched('birthDate', true)}
-              configs={{ dateFormat: 'dd MMM yyyy' }}
+              configs={{ dateFormat: 'd MMM yyyy' }}
             />
             <FormErrorMessage>{formik.errors.birthDate}</FormErrorMessage>
           </FormControl>

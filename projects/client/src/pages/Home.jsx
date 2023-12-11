@@ -83,7 +83,7 @@ function Home() {
                 date={date}
                 onDateChange={setDate}
                 configs={{
-                  dateFormat: 'dd MMM yyyy',
+                  dateFormat: 'd MMM yyyy',
                 }}
               />
             </FormControl>
@@ -110,6 +110,8 @@ function Home() {
                   pathname: '/properties',
                   search: `?${createSearchParams({
                     location: location,
+                    sort: 'name-asc',
+                    name: '',
                     start_date: dateConverter(date),
                   })}`,
                 }}

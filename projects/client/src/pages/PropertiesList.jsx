@@ -27,12 +27,7 @@ function PropertiesList() {
     return formattedDateString;
   };
 
-  const [searchParams, setSearchParams] = useSearchParams({
-    location: '',
-    sort: 'name-asc',
-    name: '',
-    start_date: dateConverter(new Date()),
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [currentStartDate, setCurrentStartDate] = useState(
     searchParams.has('start_date')
@@ -51,7 +46,7 @@ function PropertiesList() {
     const { data } = await api.get('/properties/with-rooms', {
       params: {
         page: currentPage,
-        startDate: currentStartDate,
+        startDate: dateConverter(currentStartDate),
         sort: searchParams.get('sort'),
         search: querySearch,
         location: searchParams.get('location'),
@@ -146,7 +141,7 @@ function PropertiesList() {
             date={currentStartDate}
             onDateChange={setCurrentStartDate}
             configs={{
-              dateFormat: 'dd MMM yyyy',
+              dateFormat: 'd MMM yyyy',
             }}
           />
         </FormControl>
