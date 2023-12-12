@@ -23,6 +23,7 @@ import { jwtDecode } from 'jwt-decode';
 import UserLayout from '../components/UserLayout';
 import api from '../api';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
+import { Link } from 'react-router-dom';
 
 function UserOrderList() {
   const [orders, setOrders] = useState([]);
@@ -153,7 +154,9 @@ function UserOrderList() {
                     <Badge colorScheme="yellow">{order.status}</Badge>
                   </Td>
                   <Td isNumeric>
-                    <Button>View</Button>
+                    <Link to={`/user/orders/${order.id}`}>
+                      <Button>View</Button>
+                    </Link>
                   </Td>
                 </Tr>
               ))

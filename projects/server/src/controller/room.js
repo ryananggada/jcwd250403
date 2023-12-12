@@ -166,6 +166,8 @@ exports.getRoomsByPropertyId = async (req, res) => {
   }
 
   try {
+    console.log(startDate, 'startDate');
+    console.log(endDate, 'endDate');
     const rooms = await Room.findAll({
       where: { propertyId: propertyId },
       include: [
@@ -173,19 +175,27 @@ exports.getRoomsByPropertyId = async (req, res) => {
           model: AvailableDate,
           as: 'availableDates',
           where: {
-            date: { [Op.between]: [startDate, newEndDate] },
+            date: {
+              [Op.gte]: new Date(startDate),
+              [Op.lte]: new Date(newEndDate),
+            },
+
             isAvailable: true,
           },
         },
       ],
-      group: ['Room.id'],
+      //group: ['Room.id'],
+      /*
       having: Sequelize.literal(
         `COUNT(DISTINCT availableDates.date) = ${getNumberOfDays(
           startDate,
           endDate
         )}`
       ),
+      */
     });
+
+    console.log(rooms);
 
     const roomsWithTotalPrice = rooms.map((room) => {
       const basePrice = room.price;

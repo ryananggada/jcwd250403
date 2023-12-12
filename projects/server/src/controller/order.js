@@ -1,5 +1,6 @@
 const { Order, AvailableDate, Room, Property } = require('../models');
 const { Op } = require('sequelize');
+const schedule = require('node-schedule');
 
 exports.addOrder = async (req, res) => {
   const { userId, roomId, startDate, endDate, totalPrice } = req.body;
@@ -19,6 +20,32 @@ exports.addOrder = async (req, res) => {
       endDate,
       totalPrice,
       status: 'Pending',
+    });
+
+    const cancellationDate = new Date(result.createdAt);
+    cancellationDate.setHourse(cancellationDate.getHours() + 2);
+
+    schedule.scheduleJob(cancellationDate, async () => {
+      try {
+        const order = await Order.findByPk(result.id);
+        if (order && order.status === 'Pending') {
+          order.status = 'Cancelled';
+          await order.save();
+
+          await AvailableDate.update(
+            { isAvailable: true },
+            {
+              where: {
+                roomId: order.roomId,
+                date: { [Op.between]: [order.startDate, newEndDate] },
+                isAvailable: false,
+              },
+            }
+          );
+        }
+      } catch (error) {
+        console.log('Error cancelling order: ', error);
+      }
     });
 
     await AvailableDate.update(
@@ -45,7 +72,16 @@ exports.getSingleOrder = async (req, res) => {
   const orderId = req.params.id;
 
   try {
-    const order = await Order.findOne({ where: { id: orderId } });
+    const order = await Order.findOne({
+      where: { id: orderId },
+      include: [
+        {
+          model: Room,
+          as: 'room',
+          include: [{ model: Property, as: 'property' }],
+        },
+      ],
+    });
 
     if (!order) {
       return res.status(404).json({
@@ -144,6 +180,26 @@ exports.getOrdersAsTenant = async (req, res) => {
     });
 
     return res.json({ ok: true, data: orders });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.uploadPaymentProof = async (req, res) => {
+  const orderId = req.params.id;
+  const paymentProof = req.file;
+
+  try {
+    const order = await Order.findOne({ where: { id: orderId } });
+    if (!order) {
+      return res.status(404).json({ ok: false, message: 'Order not found!' });
+    }
+
+    order.paymentProof = paymentProof.filename;
+    order.status = 'Waiting';
+    await order.save();
+
+    return res.json({ ok: true, message: 'Payment proof uploaded.' });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }
