@@ -4,6 +4,7 @@ const { multerUpload } = require('../middleware/multer');
 
 router.get('/tenant/:id', orderController.getOrdersAsTenant);
 router.get('/user/:id', orderController.getOrdersAsUser);
+router.delete('/:id/cancel', orderController.cancelOrder);
 router.post(
   '/:id/upload-payment',
   multerUpload.single('paymentProof'),

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
   TableContainer,
@@ -9,21 +9,69 @@ import {
   Tr,
   Th,
   Td,
-  Text,
   Input,
+  ButtonGroup,
   Button,
+  Badge,
   useToast,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from '@chakra-ui/react';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
 
+const CancelOrderModal = ({
+  isOpen,
+  onClose,
+  modalData,
+  handleCancelOrder,
+}) => {
+  return (
+    <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Cancel Order</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>Are you sure you want to cancel your order?</ModalBody>
+
+        <ModalFooter>
+          <Button
+            colorScheme="red"
+            marginRight={4}
+            onClick={() => handleCancelOrder({ id: modalData.id })}
+          >
+            Yes
+          </Button>
+          <Button colorScheme="gray" onClick={onClose}>
+            No
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
 function UserOrderDetails() {
   const { id } = useParams();
   const toast = useToast();
+  const navigate = useNavigate();
 
   const paymentProofRef = useRef(null);
 
   const [order, setOrder] = useState({});
+  const [modalData, setModalData] = useState({ id: 0 });
+  const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const handleOpenDeleteModal = ({ id }) => {
+    setModalData({ id });
+    onOpen();
+  };
 
   const handleUploadPaymentProof = async (e) => {
     try {
@@ -43,6 +91,28 @@ function UserOrderDetails() {
           duration: 2500,
         });
       }
+    } catch (error) {
+      toast({
+        status: 'error',
+        title: 'Error',
+        description: `${error.response.data.message}`,
+        isClosable: true,
+        duration: 2500,
+      });
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    try {
+      await api.delete(`/orders/${id}/cancel`);
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Order successfully cancelled',
+        isClosable: true,
+        duration: 2500,
+      });
+      navigate('/user/orders');
     } catch (error) {
       toast({
         status: 'error',
@@ -99,6 +169,12 @@ function UserOrderDetails() {
                 {order.endDate && format(new Date(order.endDate), 'd MMM yyyy')}
               </Td>
             </Tr>
+            <Tr>
+              <Td>Status</Td>
+              <Td>
+                <Badge colorScheme="yellow">{order.status}</Badge>
+              </Td>
+            </Tr>
           </Tbody>
         </Table>
       </TableContainer>
@@ -110,9 +186,36 @@ function UserOrderDetails() {
         onChange={(e) => handleUploadPaymentProof(e)}
         type="file"
       />
-      <Button mt={4} onClick={() => paymentProofRef.current.click()}>
-        Upload Payment Proof
-      </Button>
+      <ButtonGroup
+        mt={4}
+        display={
+          order.status === 'Completed' || order.status === 'Cancelled'
+            ? 'none'
+            : 'block'
+        }
+      >
+        <Button
+          colorScheme="yellow"
+          onClick={() => paymentProofRef.current.click()}
+          isDisabled={order.status === 'Waiting' ? true : false}
+        >
+          Upload Payment Proof
+        </Button>
+        <Button
+          colorScheme="red"
+          isDisabled={order.status !== 'Pending' ? true : false}
+          onClick={() => handleOpenDeleteModal({ id: id })}
+        >
+          Cancel Order
+        </Button>
+      </ButtonGroup>
+
+      <CancelOrderModal
+        isOpen={isOpen}
+        onClose={onClose}
+        modalData={modalData}
+        handleCancelOrder={handleCancelOrder}
+      />
     </UserLayout>
   );
 }
