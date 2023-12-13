@@ -33,6 +33,7 @@ import OrderCreated from './pages/OrderCreated';
 import UserOrderList from './pages/UserOrderList';
 import UserOrderDetails from './pages/UserOrderDetails';
 import TenantOrders from './pages/TenantOrders';
+import TenantOrderDetails from './pages/TenantOrderDetails';
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
         <Route path="/tenant/rooms/edit/:id" element={<EditRoom />} />
         <Route path="/tenant/availabilities" element={<TenantAvailability />} />
         <Route path="/tenant/orders" element={<TenantOrders />} />
+        <Route path="/tenant/orders/:id" element={<TenantOrderDetails />} />
         <Route
           path="/tenant/availabilities/add/:id"
           element={<AddAvailability />}

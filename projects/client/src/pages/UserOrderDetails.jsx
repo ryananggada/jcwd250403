@@ -128,7 +128,6 @@ function UserOrderDetails() {
     const getOrder = async () => {
       const { data } = await api.get(`/orders/${id}`);
       setOrder(data.data);
-      console.log(data.data);
     };
     getOrder();
   }, [id]);
@@ -176,7 +175,7 @@ function UserOrderDetails() {
                   colorScheme={
                     order.status === 'Cancelled'
                       ? 'red'
-                      : order.status === 'Success'
+                      : order.status === 'Complete'
                       ? 'green'
                       : 'yellow'
                   }
@@ -199,7 +198,7 @@ function UserOrderDetails() {
       <ButtonGroup
         mt={4}
         display={
-          order.status === 'Completed' || order.status === 'Cancelled'
+          order.status === 'Complete' || order.status === 'Cancelled'
             ? 'none'
             : 'block'
         }

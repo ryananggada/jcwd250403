@@ -12,17 +12,19 @@ import {
   Td,
   Button,
   Badge,
-  InputGroup,
   Select,
   Flex,
 } from '@chakra-ui/react';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 import TenantLayout from '../components/TenantLayout';
 import api from '../api';
 
 function TenantOrders() {
   const token = useSelector((state) => state.auth.token);
   const payload = jwtDecode(token);
+
+  const navigate = useNavigate();
 
   const [orders, setOrders] = useState([]);
   const [currentStatus, setCurrentStatus] = useState('');
@@ -59,7 +61,7 @@ function TenantOrders() {
             <option value="" defaultValue></option>
             <option value="Pending">Pending</option>
             <option value="Waiting">Waiting</option>
-            <option value="Success">Success</option>
+            <option value="Complete">Complete</option>
             <option value="Cancelled">Cancelled</option>
           </Select>
         </Flex>
@@ -93,7 +95,7 @@ function TenantOrders() {
                         colorScheme={
                           order.status === 'Cancelled'
                             ? 'red'
-                            : order.status === 'Success'
+                            : order.status === 'Complete'
                             ? 'green'
                             : 'yellow'
                         }
@@ -102,7 +104,11 @@ function TenantOrders() {
                       </Badge>
                     </Td>
                     <Td isNumeric>
-                      <Button>View</Button>
+                      <Button
+                        onClick={() => navigate(`/tenant/orders/${order.id}`)}
+                      >
+                        View
+                      </Button>
                     </Td>
                   </Tr>
                 ))

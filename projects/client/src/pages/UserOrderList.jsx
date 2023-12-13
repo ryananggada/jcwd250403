@@ -106,7 +106,7 @@ function UserOrderList() {
             <option value="" defaultValue></option>
             <option value="Pending">Pending</option>
             <option value="Waiting">Waiting</option>
-            <option value="Success">Success</option>
+            <option value="Complete">Complete</option>
             <option value="Cancelled">Cancelled</option>
           </Select>
         </FormControl>
@@ -155,7 +155,7 @@ function UserOrderList() {
                       colorScheme={
                         order.status === 'Cancelled'
                           ? 'red'
-                          : order.status === 'Success'
+                          : order.status === 'Complete'
                           ? 'green'
                           : 'yellow'
                       }

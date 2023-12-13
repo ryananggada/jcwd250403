@@ -23,7 +23,7 @@ exports.addOrder = async (req, res) => {
     });
 
     const cancellationDate = new Date(result.createdAt);
-    cancellationDate.setHourse(cancellationDate.getHours() + 2);
+    cancellationDate.setHours(cancellationDate.getHours() + 2);
 
     schedule.scheduleJob(cancellationDate, async () => {
       try {
@@ -79,6 +79,11 @@ exports.getSingleOrder = async (req, res) => {
           model: Room,
           as: 'room',
           include: [{ model: Property, as: 'property' }],
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name'],
         },
       ],
     });
@@ -207,6 +212,43 @@ exports.uploadPaymentProof = async (req, res) => {
     await order.save();
 
     return res.json({ ok: true, message: 'Payment proof uploaded.' });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.confirmOrder = async (req, res) => {
+  const orderId = req.params.id;
+
+  try {
+    const order = await Order.findOne({ where: { id: orderId } });
+    if (!order) {
+      return res.status(404).json({ ok: false, message: 'Order not found!' });
+    }
+
+    order.status = 'Complete';
+    await order.save();
+    // then send email to the user
+
+    return res.json({ ok: true, message: 'Order successfully confirmed.' });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.rejectOrder = async (req, res) => {
+  const orderId = req.params.id;
+
+  try {
+    const order = await Order.findOne({ where: { id: orderId } });
+    if (!order) {
+      return res.status(404).json({ ok: false, message: 'Order not found!' });
+    }
+
+    order.status = 'Pending';
+    await order.save();
+
+    return res.json({ ok: true, message: 'Order successfully rejected.' });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }
