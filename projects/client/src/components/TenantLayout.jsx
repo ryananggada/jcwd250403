@@ -16,18 +16,18 @@ import {
   VStack,
   MenuList,
   MenuItem,
-  MenuDivider,
   Image,
 } from '@chakra-ui/react';
 import {
   FiHome,
-  FiTrendingUp,
-  FiCompass,
-  FiStar,
-  FiSettings,
+  FiGrid,
+  FiLayers,
+  FiCalendar,
   FiMenu,
   FiBell,
+  FiCreditCard,
   FiChevronDown,
+  FiKey,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { logout } from '../slices/auth';
@@ -35,11 +35,15 @@ import { jwtDecode } from 'jwt-decode';
 
 const LinkItems = [
   { name: 'Home', icon: FiHome, path: '/tenant' },
-  { name: 'Categories', icon: FiTrendingUp, path: '/tenant/categories' },
-  { name: 'Properties', icon: FiCompass, path: '/tenant/properties' },
-  { name: 'Rooms', icon: FiStar, path: '/tenant/rooms' },
-  { name: 'Set availability', icon: FiBell, path: '/tenant/availabilities' },
-  { name: 'Transactions', icon: FiSettings, path: '/tenant/transactions' },
+  { name: 'Categories', icon: FiGrid, path: '/tenant/categories' },
+  { name: 'Properties', icon: FiLayers, path: '/tenant/properties' },
+  { name: 'Rooms', icon: FiKey, path: '/tenant/rooms' },
+  {
+    name: 'Set availability',
+    icon: FiCalendar,
+    path: '/tenant/availabilities',
+  },
+  { name: 'Orders', icon: FiCreditCard, path: '/tenant/orders' },
 ];
 
 const SidebarContent = ({ onClose, ...rest }) => {
@@ -156,8 +160,6 @@ const MobileNav = ({ onOpen, tenantName, ...rest }) => {
               </HStack>
             </MenuButton>
             <MenuList bg="white" borderColor="gray.200">
-              <MenuItem>Profile</MenuItem>
-              <MenuDivider />
               <MenuItem onClick={() => dispatch(logout())}>Logout</MenuItem>
             </MenuList>
           </Menu>

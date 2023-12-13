@@ -151,7 +151,17 @@ function UserOrderList() {
                     {format(new Date(order.endDate), 'd MMM yyyy')}
                   </Td>
                   <Td>
-                    <Badge colorScheme="yellow">{order.status}</Badge>
+                    <Badge
+                      colorScheme={
+                        order.status === 'Cancelled'
+                          ? 'red'
+                          : order.status === 'Success'
+                          ? 'green'
+                          : 'yellow'
+                      }
+                    >
+                      {order.status}
+                    </Badge>
                   </Td>
                   <Td isNumeric>
                     <Link to={`/user/orders/${order.id}`}>

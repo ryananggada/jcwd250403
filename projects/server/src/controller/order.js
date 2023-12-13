@@ -1,4 +1,4 @@
-const { Order, AvailableDate, Room, Property } = require('../models');
+const { Order, AvailableDate, Room, Property, User } = require('../models');
 const { Op } = require('sequelize');
 const schedule = require('node-schedule');
 
@@ -159,10 +159,12 @@ exports.getOrdersAsUser = async (req, res) => {
 };
 
 exports.getOrdersAsTenant = async (req, res) => {
+  const { status } = req.query;
   const tenantId = req.params.id;
 
   try {
     const orders = await Order.findAll({
+      where: { status: { [Op.like]: `%${status}%` } },
       include: [
         {
           model: Room,
@@ -175,6 +177,11 @@ exports.getOrdersAsTenant = async (req, res) => {
               where: { tenantId },
             },
           ],
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name'],
         },
       ],
     });

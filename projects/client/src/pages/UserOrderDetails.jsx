@@ -172,7 +172,17 @@ function UserOrderDetails() {
             <Tr>
               <Td>Status</Td>
               <Td>
-                <Badge colorScheme="yellow">{order.status}</Badge>
+                <Badge
+                  colorScheme={
+                    order.status === 'Cancelled'
+                      ? 'red'
+                      : order.status === 'Success'
+                      ? 'green'
+                      : 'yellow'
+                  }
+                >
+                  {order.status}
+                </Badge>
               </Td>
             </Tr>
           </Tbody>
