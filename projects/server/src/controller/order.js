@@ -1,6 +1,10 @@
 const { Order, AvailableDate, Room, Property, User } = require('../models');
 const { Op } = require('sequelize');
 const schedule = require('node-schedule');
+const fs = require('fs');
+const hbs = require('handlebars');
+const path = require('path');
+const sendEmail = require('../middleware/email');
 
 exports.addOrder = async (req, res) => {
   const { userId, roomId, startDate, endDate, totalPrice } = req.body;
@@ -202,7 +206,9 @@ exports.uploadPaymentProof = async (req, res) => {
   const paymentProof = req.file;
 
   try {
-    const order = await Order.findOne({ where: { id: orderId } });
+    const order = await Order.findOne({
+      where: { id: orderId },
+    });
     if (!order) {
       return res.status(404).json({ ok: false, message: 'Order not found!' });
     }
@@ -221,15 +227,59 @@ exports.confirmOrder = async (req, res) => {
   const orderId = req.params.id;
 
   try {
-    const order = await Order.findOne({ where: { id: orderId } });
+    const order = await Order.findOne({
+      where: { id: orderId },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+    });
     if (!order) {
       return res.status(404).json({ ok: false, message: 'Order not found!' });
     }
 
     order.status = 'Complete';
     await order.save();
-    // then send email to the user
 
+    try {
+      const templateRaw = fs.readFileSync(
+        path.join(__dirname, '..', 'templates', 'orderSuccess.html'),
+        'utf-8'
+      );
+      const templateCompile = hbs.compile(templateRaw);
+
+      const sd = new Date(order.startDate);
+      const ed = new Date(order.endDate);
+
+      let sDay = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(sd);
+      let sMonth = new Intl.DateTimeFormat('en', { month: 'short' }).format(sd);
+      let sYear = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(sd);
+
+      let eDay = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(ed);
+      let eMonth = new Intl.DateTimeFormat('en', { month: 'short' }).format(ed);
+      let eYear = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(ed);
+
+      const emailHtml = templateCompile({
+        orderId: order.id,
+        propertyName: order.room.property.name,
+        roomName: order.room.roomType,
+        startDate: `${sDay} ${sMonth} ${sYear}`,
+        endDate: `${eDay} ${eMonth} ${eYear}`,
+        totalPrice:
+          'Rp ' + new Intl.NumberFormat('id-ID').format(order.totalPrice),
+      });
+
+      await sendEmail({
+        email: order.user.email,
+        subject: 'Order completed',
+        html: emailHtml,
+      });
+    } catch (error) {
+      return res.status(400).json({ ok: false, message: String(error) });
+    }
     return res.json({ ok: true, message: 'Order successfully confirmed.' });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
