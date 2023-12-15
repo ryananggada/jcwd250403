@@ -24,7 +24,6 @@ import {
   FiLayers,
   FiCalendar,
   FiMenu,
-  FiBell,
   FiCreditCard,
   FiChevronDown,
   FiKey,
@@ -131,12 +130,6 @@ const MobileNav = ({ onOpen, tenantName, ...rest }) => {
       </Box>
 
       <HStack spacing={{ base: '0', md: '6' }}>
-        <IconButton
-          size="lg"
-          variant="ghost"
-          aria-label="Open Menu"
-          icon={<FiBell />}
-        />
         <Flex alignItems="center">
           <Menu>
             <MenuButton

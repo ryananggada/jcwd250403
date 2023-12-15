@@ -87,6 +87,7 @@ function UserReviews() {
                       <Flex mt={2}>
                         {[1, 2, 3, 4, 5].map((value) => (
                           <Icon
+                            key={value}
                             as={value <= review.rating ? FaStar : FaRegStar}
                             color="orange.300"
                             boxSize={6}

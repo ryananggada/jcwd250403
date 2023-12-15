@@ -38,6 +38,13 @@ function BookProperty() {
         endDate,
         totalPrice,
       });
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Your property order successfully created!',
+        isClosable: true,
+        duration: 5000,
+      });
       navigate('/order-created');
     } catch (error) {
       toast({

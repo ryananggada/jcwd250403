@@ -14,7 +14,10 @@ import {
   FormControl,
   FormLabel,
   useToast,
+  Avatar,
+  Flex,
 } from '@chakra-ui/react';
+import { FaStar, FaRegStar } from 'react-icons/fa';
 import { RangeDatepicker } from 'chakra-dayzed-datepicker';
 import { FiMapPin } from 'react-icons/fi';
 import { jwtDecode } from 'jwt-decode';
@@ -40,6 +43,7 @@ function PropertyDetails() {
   const { id } = useParams();
   const [property, setProperty] = useState({});
   const [rooms, setRooms] = useState([]);
+  const [reviews, setReviews] = useState([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -84,6 +88,12 @@ function PropertyDetails() {
       return newParams;
     });
   }, [searchParams, selectedDates, setSearchParams]);
+
+  useEffect(() => {
+    api.get(`/reviews/property/${id}`).then((res) => {
+      setReviews(res.data.data);
+    });
+  }, [id]);
 
   return (
     <UserLayout>
@@ -179,6 +189,51 @@ function PropertyDetails() {
                       Rent now
                     </Button>
                   </Stack>
+                </GridItem>
+              ))}
+            </Grid>
+          )}
+
+          <Text fontSize="2xl" fontWeight="semibold" my={4}>
+            Reviews
+          </Text>
+          {reviews.length === 0 ? (
+            <Text fontSize="xl" fontWeight="medium" textAlign="center">
+              No reviews yet
+            </Text>
+          ) : (
+            <Grid
+              templateColumns={{
+                base: 'repeat(1, 1fr)',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              }}
+              gap={2}
+            >
+              {reviews.map((review) => (
+                <GridItem
+                  border="1px"
+                  borderColor="black"
+                  borderRadius={4}
+                  p={3}
+                  key={review.id}
+                >
+                  <Flex alignItems="center" gap={3}>
+                    <Avatar
+                      src={`${process.env.REACT_APP_IMAGE_LINK}/${review.user?.profilePicture}`}
+                    />
+                    <Text>{review.user?.name}</Text>
+                  </Flex>
+                  <Flex my={2}>
+                    {[1, 2, 3, 4, 5].map((value) => (
+                      <Icon
+                        as={value <= review.rating ? FaStar : FaRegStar}
+                        color="orange.300"
+                        boxSize={6}
+                      />
+                    ))}
+                  </Flex>
+                  <Text my={2}>{review.comment}</Text>
                 </GridItem>
               ))}
             </Grid>

@@ -328,3 +328,31 @@ exports.rejectOrder = async (req, res) => {
     return res.status(500).json({ ok: false, message: String(error) });
   }
 };
+
+exports.getWaitingOrders = async (req, res) => {
+  const tenantId = req.params.id;
+
+  try {
+    const waitingOrdersCount = await Order.count({
+      where: { status: { [Op.like]: `%Waiting%` } },
+      include: [
+        {
+          model: Room,
+          as: 'room',
+          require: true,
+          include: [
+            {
+              model: Property,
+              as: 'property',
+              where: { tenantId },
+            },
+          ],
+        },
+      ],
+    });
+
+    return res.status(200).json({ ok: true, waitingOrdersCount });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
