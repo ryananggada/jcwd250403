@@ -14,7 +14,7 @@ import {
 import { format } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, createSearchParams, useSearchParams } from 'react-router-dom';
 import UserLayout from '../components/UserLayout';
 import api from '../api';
 import useDebounce from '../hooks/useDebounce';
@@ -205,7 +205,19 @@ function PropertiesList() {
                 overflow="hidden"
                 mx="auto"
               >
-                <Link to={`/properties/${item.id}`}>
+                <Link
+                  to={{
+                    pathname: `/properties/${item.id}`,
+                    search: `?${createSearchParams({
+                      start_date: dateConverter(currentStartDate),
+                      end_date: dateConverter(
+                        new Date(
+                          currentStartDate.getTime() + 24 * 60 * 60 * 1000
+                        )
+                      ),
+                    })}`,
+                  }}
+                >
                   <Image
                     src={`${process.env.REACT_APP_IMAGE_LINK}/${item.picture}`}
                     height="200px"

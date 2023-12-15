@@ -1,4 +1,11 @@
-const { Order, AvailableDate, Room, Property, User } = require('../models');
+const {
+  Order,
+  AvailableDate,
+  Room,
+  Property,
+  User,
+  Review,
+} = require('../models');
 const { Op } = require('sequelize');
 const schedule = require('node-schedule');
 const fs = require('fs');
@@ -235,6 +242,11 @@ exports.confirmOrder = async (req, res) => {
           as: 'user',
           attributes: ['id', 'name', 'email'],
         },
+        {
+          model: Room,
+          as: 'room',
+          attributes: ['propertyId'],
+        },
       ],
     });
     if (!order) {
@@ -243,6 +255,19 @@ exports.confirmOrder = async (req, res) => {
 
     order.status = 'Complete';
     await order.save();
+
+    const existingReviews = await Review.findAll({
+      where: { userId: order.user.id, propertyId: order.room.propertyId },
+    });
+    if (existingReviews.length === 0) {
+      await Review.create({
+        propertyId: order.room.propertyId,
+        userId: order.user.id,
+        rating: 0,
+        comment: '',
+        isDone: false,
+      });
+    }
 
     try {
       const templateRaw = fs.readFileSync(

@@ -23,6 +23,9 @@ module.exports = {
       comment: {
         type: Sequelize.STRING,
       },
+      isDone: {
+        type: Sequelize.BOOLEAN,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

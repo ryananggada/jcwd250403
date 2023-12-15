@@ -60,7 +60,6 @@ function AddAvailability() {
 
   const handleSubmit = async (values, form) => {
     try {
-      console.log('test');
       await api.post(`/available-dates/${id}`, values, {
         headers: {
           Authorization: `Bearer ${token}`,

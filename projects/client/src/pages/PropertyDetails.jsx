@@ -71,8 +71,6 @@ function PropertyDetails() {
     }
   }, [selectedDates, id]);
 
-  console.log(rooms);
-
   useEffect(() => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);

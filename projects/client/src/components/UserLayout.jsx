@@ -185,11 +185,14 @@ function UserLayout({ children }) {
                   <Avatar size="sm" src="" />
                 </MenuButton>
                 <MenuList zIndex={999}>
+                <Link to="/user/profile">
+                    <MenuItem>Profile</MenuItem>
+                  </Link>
                   <Link to="/user/orders">
                     <MenuItem>View Orders</MenuItem>
                   </Link>
-                  <Link to="/user/profile">
-                    <MenuItem>Profile</MenuItem>
+                  <Link to="/user/reviews">
+                    <MenuItem>Reviews</MenuItem>
                   </Link>
                   <MenuDivider />
                   <MenuItem onClick={() => dispatch(logout())}>

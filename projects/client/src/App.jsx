@@ -34,6 +34,8 @@ import UserOrderList from './pages/UserOrderList';
 import UserOrderDetails from './pages/UserOrderDetails';
 import TenantOrders from './pages/TenantOrders';
 import TenantOrderDetails from './pages/TenantOrderDetails';
+import UserReviews from './pages/UserReviews';
+import AddUserReview from './pages/AddUserReview';
 
 function App() {
   return (
@@ -53,6 +55,8 @@ function App() {
           path="/user/profile/change-password"
           element={<UserChangePassword />}
         />
+        <Route path="/user/reviews" element={<UserReviews />} />
+        <Route path="/user/reviews/add/:id" element={<AddUserReview />} />
         <Route path="/properties/book/:id" element={<BookProperty />} />
         <Route path="/order-created" element={<OrderCreated />} />
       </Route>

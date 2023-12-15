@@ -65,7 +65,8 @@ function UserProfile() {
             Birthday
           </Text>
           <Text align="left">
-            {format(new Date(userProfile.birthDate), 'd MMMM yyyy')}
+            {userProfile.birthDate &&
+              format(new Date(userProfile.birthDate), 'd MMMM yyyy')}
           </Text>
 
           <Box display={{ base: 'block', sm: 'flex' }}>
