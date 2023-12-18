@@ -28,21 +28,40 @@ function TenantOrders() {
 
   const [orders, setOrders] = useState([]);
   const [currentStatus, setCurrentStatus] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
   const handleChangeStatus = (e) => {
     const newValue = e.target.value;
     setCurrentStatus(newValue);
+    setCurrentPage(1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (totalPage > currentPage) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   useEffect(() => {
     api
-      .get(`/orders/tenant/${payload.id}`, {
-        params: { status: currentStatus },
+      .get('/orders/tenant', {
+        params: { status: currentStatus, page: currentPage },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
       .then((res) => {
         setOrders(res.data.data);
+        setTotalPage(Math.ceil(res.data.count / 5));
       });
-  }, [currentStatus, payload.id]);
+  }, [token, currentStatus, currentPage]);
 
   return (
     <TenantLayout>
@@ -52,7 +71,7 @@ function TenantOrders() {
         </Text>
 
         <Flex direction="column">
-          <Text mb={2}>Sort by status</Text>
+          <Text mb={2}>Filter by status</Text>
           <Select
             maxWidth="360px"
             value={currentStatus}
@@ -70,7 +89,7 @@ function TenantOrders() {
           <Table>
             <Thead>
               <Tr>
-                <Th>Order ID</Th>
+                <Th>Invoice ID</Th>
                 <Th>Property</Th>
                 <Th>Room</Th>
                 <Th>User</Th>
@@ -86,7 +105,7 @@ function TenantOrders() {
               ) : (
                 orders.map((order) => (
                   <Tr key={order.id}>
-                    <Td>{order.id}</Td>
+                    <Td>{order.invoiceId}</Td>
                     <Td>{order.room?.property?.name}</Td>
                     <Td>{order.room?.roomType}</Td>
                     <Td>{order.user?.name}</Td>
@@ -116,6 +135,13 @@ function TenantOrders() {
             </Tbody>
           </Table>
         </TableContainer>
+        <Flex justifyContent="flex-end" alignItems="center">
+          <Button onClick={() => handlePrevPage()}>{'<'}</Button>
+          <Text mx="2">
+            {currentPage} of {totalPage === 0 ? 1 : totalPage}
+          </Text>
+          <Button onClick={() => handleNextPage()}>{'>'}</Button>
+        </Flex>
       </Stack>
     </TenantLayout>
   );

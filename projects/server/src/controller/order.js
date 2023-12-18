@@ -23,10 +23,24 @@ exports.addOrder = async (req, res) => {
 
   const newEndDate = `${year}-${month}-${day}`;
 
+  const generateInvoiceId = () => {
+    const randomNumber1 = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(5, '0');
+    const randomNumber2 = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(5, '0');
+
+    const invoiceID = `INV-${randomNumber1}-${randomNumber2}`;
+
+    return invoiceID;
+  };
+
   try {
     const result = await Order.create({
       userId,
       roomId,
+      invoiceId: generateInvoiceId(),
       startDate,
       endDate,
       totalPrice,
@@ -157,7 +171,8 @@ exports.getOrdersAsUser = async (req, res) => {
         where: {
           userId,
           status: { [Op.like]: `%${status}%` },
-          startDate: { [Op.eq]: date },
+          startDate: { [Op.lte]: date },
+          endDate: { [Op.gte]: date },
         },
         order: [[sort, 'DESC']],
         offset: 5 * ((page ? page : 1) - 1),
@@ -175,11 +190,11 @@ exports.getOrdersAsUser = async (req, res) => {
 };
 
 exports.getOrdersAsTenant = async (req, res) => {
-  const { status } = req.query;
-  const tenantId = req.params.id;
+  const { status, page } = req.query;
+  const tenantId = req.profile.id;
 
   try {
-    const orders = await Order.findAll({
+    const orders = await Order.findAndCountAll({
       where: { status: { [Op.like]: `%${status}%` } },
       include: [
         {
@@ -200,9 +215,12 @@ exports.getOrdersAsTenant = async (req, res) => {
           attributes: ['id', 'name'],
         },
       ],
+      order: [['updatedAt', 'ASC']],
+      offset: 5 * ((page ? page : 1) - 1),
+      limit: 5,
     });
 
-    return res.json({ ok: true, data: orders });
+    return res.json({ ok: true, count: orders.count, data: orders.rows });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }
@@ -329,8 +347,8 @@ exports.rejectOrder = async (req, res) => {
   }
 };
 
-exports.getWaitingOrders = async (req, res) => {
-  const tenantId = req.params.id;
+exports.getOrderReports = async (req, res) => {
+  const tenantId = req.profile.id;
 
   try {
     const waitingOrdersCount = await Order.count({
@@ -351,7 +369,27 @@ exports.getWaitingOrders = async (req, res) => {
       ],
     });
 
-    return res.status(200).json({ ok: true, waitingOrdersCount });
+    const successOrdersCount = await Order.count({
+      where: { status: { [Op.like]: `%Complete%` } },
+      include: [
+        {
+          model: Room,
+          as: 'room',
+          require: true,
+          include: [
+            {
+              model: Property,
+              as: 'property',
+              where: { tenantId },
+            },
+          ],
+        },
+      ],
+    });
+
+    return res
+      .status(200)
+      .json({ ok: true, waitingOrdersCount, successOrdersCount });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }

@@ -20,6 +20,7 @@ import {
 import { FaStar, FaRegStar } from 'react-icons/fa';
 import { RangeDatepicker } from 'chakra-dayzed-datepicker';
 import { FiMapPin } from 'react-icons/fi';
+import { format, addDays } from 'date-fns';
 import { jwtDecode } from 'jwt-decode';
 import UserLayout from '../components/UserLayout';
 import api from '../api';
@@ -162,6 +163,29 @@ function PropertyDetails() {
                       night
                     </Text>
 
+                    {room.availableDates.length > 0 && (
+                      <Text my={1} fontWeight="semibold">
+                        Available Date:
+                      </Text>
+                    )}
+                    <Text>
+                      {room.availableDates.length > 0 &&
+                        `${format(
+                          new Date(room.availableDates[0].date),
+                          'd MMM yyyy'
+                        )} to ${format(
+                          addDays(
+                            new Date(
+                              room.availableDates[
+                                room.availableDates.length - 1
+                              ].date
+                            ),
+                            1
+                          ),
+                          'd MMM yyyy'
+                        )}`}
+                    </Text>
+
                     <Button
                       alignSelf="flex-end"
                       colorScheme="black"
@@ -176,10 +200,17 @@ function PropertyDetails() {
                             duration: 2500,
                           });
                         } else {
+                          const newEndDate = new Date(
+                            room.availableDates[
+                              room.availableDates.length - 1
+                            ].date
+                          );
+                          newEndDate.setDate(newEndDate.getDate() + 1);
+
                           navigate(`/properties/book/${room.id}`, {
                             state: {
-                              startDate: searchParams.get('start_date'),
-                              endDate: searchParams.get('end_date'),
+                              startDate: room.availableDates[0].date,
+                              endDate: newEndDate,
                               totalPrice: room.totalPrice,
                             },
                           });
@@ -227,6 +258,7 @@ function PropertyDetails() {
                   <Flex my={2}>
                     {[1, 2, 3, 4, 5].map((value) => (
                       <Icon
+                        key={value}
                         as={value <= review.rating ? FaStar : FaRegStar}
                         color="orange.300"
                         boxSize={6}

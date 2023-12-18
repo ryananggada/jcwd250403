@@ -101,11 +101,11 @@ function BookProperty() {
           mt={{ base: 6, md: 0 }}
           gap={4}
         >
-          <Flex gap={12}>
+          <Flex gap={12} justifyContent="space-between">
             <Text>Check in</Text>
             <Text>{format(new Date(startDate), 'd MMM yyyy')}</Text>
           </Flex>
-          <Flex gap={12}>
+          <Flex gap={12} justifyContent="space-between">
             <Text>Check out</Text>
             <Text>{format(new Date(endDate), 'd MMM yyyy')}</Text>
           </Flex>

@@ -35,24 +35,6 @@ import { logout } from '../slices/auth';
 import { Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
-const NavLink = ({ children }) => {
-  return (
-    <Box
-      as="a"
-      px={2}
-      py={1}
-      rounded={'md'}
-      _hover={{
-        textDecoration: 'none',
-        bg: 'gray.200',
-      }}
-      href={'#'}
-    >
-      {children}
-    </Box>
-  );
-};
-
 const SidebarContent = ({ onClose, isLogin, token, ...rest }) => {
   return (
     <Box
@@ -185,7 +167,7 @@ function UserLayout({ children }) {
                   <Avatar size="sm" src="" />
                 </MenuButton>
                 <MenuList zIndex={999}>
-                <Link to="/user/profile">
+                  <Link to="/user/profile">
                     <MenuItem>Profile</MenuItem>
                   </Link>
                   <Link to="/user/orders">

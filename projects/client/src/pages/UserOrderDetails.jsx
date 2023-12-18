@@ -13,6 +13,7 @@ import {
   ButtonGroup,
   Button,
   Badge,
+  Image,
   useToast,
   Modal,
   ModalOverlay,
@@ -145,7 +146,7 @@ function UserOrderDetails() {
           <Tbody>
             <Tr>
               <Td>Invoice ID</Td>
-              <Td>{order.id}</Td>
+              <Td>{order.invoiceId}</Td>
             </Tr>
             <Tr>
               <Td>Property Name</Td>
@@ -182,6 +183,20 @@ function UserOrderDetails() {
                 >
                   {order.status}
                 </Badge>
+              </Td>
+            </Tr>
+            <Tr>
+              <Td>Payment Proof</Td>
+              <Td>
+                {order.paymentProof != null ? (
+                  <Image
+                    src={`${process.env.REACT_APP_IMAGE_LINK}/${order.paymentProof}`}
+                    maxWidth="527px"
+                    maxHeight="320px"
+                  />
+                ) : (
+                  'No payment proof yet'
+                )}
               </Td>
             </Tr>
           </Tbody>

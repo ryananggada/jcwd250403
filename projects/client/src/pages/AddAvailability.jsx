@@ -19,7 +19,7 @@ import {
   Td,
 } from '@chakra-ui/react';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
-import { subDays, startOfDay } from 'date-fns';
+import { format, subDays, startOfDay } from 'date-fns';
 import TenantLayout from '../components/TenantLayout';
 import api from '../api';
 import { useFormik } from 'formik';
@@ -106,7 +106,7 @@ function AddAvailability() {
 
   return (
     <TenantLayout>
-      <Flex gap="20px">
+      <Flex gap="20px" flexDirection={{ base: 'column', md: 'row' }}>
         <Stack
           maxWidth="420px"
           gap="20px"
@@ -168,7 +168,9 @@ function AddAvailability() {
               ) : (
                 availableDates.map((ad) => (
                   <Tr key={ad.id}>
-                    <Td>{ad.date}</Td>
+                    <Td>
+                      {ad.date && format(new Date(ad.date), 'd MMM yyyy')}
+                    </Td>
                     <Td>{ad.pricePercentage * 100 + '%'}</Td>
                   </Tr>
                 ))

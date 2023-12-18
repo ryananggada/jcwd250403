@@ -158,13 +158,6 @@ exports.getRoomsByPropertyId = async (req, res) => {
 
   const newEndDate = `${year}-${month}-${day}`;
 
-  function getNumberOfDays(startDate, endDate) {
-    const start = new Date(Date.parse(startDate));
-    const end = new Date(Date.parse(endDate));
-    const oneDay = 24 * 60 * 60 * 1000;
-    return Math.round(Math.abs((end - start) / oneDay));
-  }
-
   try {
     const rooms = await Room.findAll({
       where: { propertyId: propertyId },
@@ -173,13 +166,10 @@ exports.getRoomsByPropertyId = async (req, res) => {
           model: AvailableDate,
           as: 'availableDates',
           where: {
-            date: {
-              [Op.gte]: new Date(startDate),
-              [Op.lte]: new Date(newEndDate),
-            },
-
+            date: { [Op.between]: [startDate, newEndDate] },
             isAvailable: true,
           },
+          order: [['date', 'ASC']],
         },
       ],
     });

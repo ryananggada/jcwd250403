@@ -115,7 +115,7 @@ function TenantOrderDetails() {
               <Tbody>
                 <Tr>
                   <Td>Invoice ID</Td>
-                  <Td>{order.id}</Td>
+                  <Td>{order.invoiceId}</Td>
                 </Tr>
                 <Tr>
                   <Td>Property Name</Td>

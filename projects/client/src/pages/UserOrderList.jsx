@@ -92,7 +92,7 @@ function UserOrderList() {
         flexDirection={{ base: 'column', md: 'row' }}
       >
         <FormControl>
-          <FormLabel>Date range</FormLabel>
+          <FormLabel>Date</FormLabel>
           <SingleDatepicker
             date={date}
             onDateChange={setDate}
@@ -145,7 +145,7 @@ function UserOrderList() {
             ) : (
               orders.map((order) => (
                 <Tr key={order.id}>
-                  <Td>{order.id}</Td>
+                  <Td>{order.invoiceId}</Td>
                   <Td>
                     {format(new Date(order.startDate), 'd MMM yyyy')} -{' '}
                     {format(new Date(order.endDate), 'd MMM yyyy')}

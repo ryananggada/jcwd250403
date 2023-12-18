@@ -29,7 +29,7 @@ exports.getAvailableDates = async (req, res) => {
 
   try {
     const result = await AvailableDate.findAll({
-      where: { roomId: roomId },
+      where: { roomId: roomId, isAvailable: true },
     });
 
     return res.json({

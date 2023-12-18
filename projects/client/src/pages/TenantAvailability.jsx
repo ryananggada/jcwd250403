@@ -10,6 +10,7 @@ import {
   Tbody,
   Td,
   Button,
+  Flex,
 } from '@chakra-ui/react';
 import { useSelector } from 'react-redux';
 import TenantLayout from '../components/TenantLayout';
@@ -20,12 +21,29 @@ function TenantAvailability() {
   const token = useSelector((state) => state.auth.token);
 
   const [rooms, setRooms] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (totalPage > currentPage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   useEffect(() => {
     const getRooms = async () => {
       const {
         data: { data },
       } = await api.get('/rooms', {
+        params: {
+          page: currentPage,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -34,7 +52,7 @@ function TenantAvailability() {
     };
 
     getRooms();
-  }, []);
+  }, [token, currentPage]);
 
   return (
     <TenantLayout>
@@ -79,6 +97,13 @@ function TenantAvailability() {
             </Tbody>
           </Table>
         </TableContainer>
+        <Flex justifyContent="flex-end" alignItems="center">
+          <Button onClick={() => handlePrevPage()}>{'<'}</Button>
+          <Text mx="2">
+            {currentPage} of {totalPage === 0 ? 1 : totalPage}
+          </Text>
+          <Button onClick={() => handleNextPage()}>{'>'}</Button>
+        </Flex>
       </Stack>
     </TenantLayout>
   );
