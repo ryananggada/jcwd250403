@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import {
@@ -72,6 +72,7 @@ function AddAvailability() {
         isClosable: true,
         duration: 2500,
       });
+      getAvailableDates();
     } catch (error) {
       toast({
         status: 'error',
@@ -91,18 +92,16 @@ function AddAvailability() {
     onSubmit: handleSubmit,
   });
 
-  useEffect(() => {
-    const getAvailableDates = async () => {
-      await api.get(`/available-dates/${id}`).then((res) => {
-        const {
-          data: { data },
-        } = res;
-        setAvailableDates(data);
-      });
-    };
-
-    getAvailableDates();
+  const getAvailableDates = useCallback(async () => {
+    const {
+      data: { data },
+    } = await api.get(`/available-dates/${id}`);
+    setAvailableDates(data);
   }, [id]);
+
+  useEffect(() => {
+    getAvailableDates();
+  }, [getAvailableDates]);
 
   return (
     <TenantLayout>

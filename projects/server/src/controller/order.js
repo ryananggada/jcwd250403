@@ -264,6 +264,10 @@ exports.confirmOrder = async (req, res) => {
           model: Room,
           as: 'room',
           attributes: ['propertyId'],
+          include: {
+            model: Property,
+            as: 'property',
+          },
         },
       ],
     });
