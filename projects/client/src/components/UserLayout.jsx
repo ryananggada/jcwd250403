@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   useDisclosure,
   chakra,
@@ -33,6 +34,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import UserLoginModal from './UserLoginModal';
 import { logout } from '../slices/auth';
 import { Link } from 'react-router-dom';
+import api from '../api';
 import { jwtDecode } from 'jwt-decode';
 
 const SidebarContent = ({ onClose, isLogin, token, ...rest }) => {
@@ -94,6 +96,8 @@ const SocialButton = ({ children, label, href }) => {
 };
 
 function UserLayout({ children }) {
+  const [profilePicture, setProfilePicture] = useState(null);
+
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
@@ -115,6 +119,14 @@ function UserLayout({ children }) {
     }
     return false;
   }
+
+  useEffect(() => {
+    if (token) {
+      api.get(`/auth/user/profile/${jwtDecode(token).id}`).then((res) => {
+        setProfilePicture(res.data.data.user.profilePicture);
+      });
+    }
+  }, [token]);
 
   return (
     <Box display="flex" flexDirection="column" minH="100vh">
@@ -164,7 +176,10 @@ function UserLayout({ children }) {
                   cursor="pointer"
                   minW={0}
                 >
-                  <Avatar size="sm" src="" />
+                  <Avatar
+                    size="sm"
+                    src={`${process.env.REACT_APP_IMAGE_LINK}/${profilePicture}`}
+                  />
                 </MenuButton>
                 <MenuList zIndex={999}>
                   <Link to="/user/profile">

@@ -91,6 +91,7 @@ function UserOrderDetails() {
           isClosable: true,
           duration: 2500,
         });
+        navigate('/user/orders');
       }
     } catch (error) {
       toast({

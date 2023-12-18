@@ -31,6 +31,7 @@ function UserOrderList() {
   const [totalPage, setTotalPage] = useState(1);
   const [currentSort, setCurrentSort] = useState('id');
   const [currentStatus, setCurrentStatus] = useState('');
+  const [invoiceId, setInvoiceId] = useState('');
 
   const [date, setDate] = useState(new Date());
 
@@ -46,6 +47,11 @@ function UserOrderList() {
   const handleChangeSort = (e) => {
     const newValue = e.target.value;
     setCurrentSort(newValue);
+    setCurrentPage(1);
+  };
+
+  const handleInvoiceId = (e) => {
+    setInvoiceId(e.target.value);
     setCurrentPage(1);
   };
 
@@ -68,6 +74,7 @@ function UserOrderList() {
           page: currentPage,
           sort: currentSort,
           status: currentStatus,
+          invoiceId: invoiceId,
           date,
         },
       });
@@ -75,7 +82,7 @@ function UserOrderList() {
       setTotalPage(Math.ceil(data.count / 5));
     };
     getOrders();
-  }, [payload.id, currentPage, currentSort, currentStatus, date]);
+  }, [payload.id, currentPage, currentSort, currentStatus, invoiceId, date]);
 
   return (
     <UserLayout>
@@ -112,14 +119,14 @@ function UserOrderList() {
         </FormControl>
 
         <FormControl>
-          <FormLabel>Order ID</FormLabel>
-          <Input />
+          <FormLabel>Invoice ID</FormLabel>
+          <Input type="text" value={invoiceId} onChange={handleInvoiceId} />
         </FormControl>
 
         <FormControl>
           <FormLabel>Sort by</FormLabel>
           <Select value={currentSort} onChange={handleChangeSort}>
-            <option value="id" defaultValue>
+            <option value="invoiceId" defaultValue>
               Invoice ID
             </option>
             <option value="startDate">Date</option>
