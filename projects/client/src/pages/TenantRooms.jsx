@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   Box,
@@ -6,6 +7,7 @@ import {
   Text,
   Button,
   Flex,
+  Input,
   InputGroup,
   InputLeftElement,
   useToast,
@@ -30,6 +32,7 @@ import {
 import { FiSearch } from 'react-icons/fi';
 import api from '../api';
 import TenantLayout from '../components/TenantLayout';
+import useDebounce from '../hooks/useDebounce';
 
 const DeleteRoomModal = ({ isOpen, onClose, modalData, handleDeleteRoom }) => {
   return (
@@ -61,7 +64,14 @@ function TenantRooms() {
   const toast = useToast();
   const [rooms, setRooms] = useState([]);
   const [modalData, setModalData] = useState({ id: 0, type: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [currentSort, setCurrentSort] = useState('ASC');
+  const [searchTerm, setSearchTerm] = useState('');
+  const querySearch = useDebounce(searchTerm, 1500);
   const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const token = useSelector((state) => state.auth.token);
 
   const handleOpenDeleteModal = ({ id, roomType }) => {
     setModalData({ id, roomType });
@@ -70,43 +80,77 @@ function TenantRooms() {
 
   const getRooms = useCallback(async () => {
     try {
-      const {
-        data: { data },
-      } = await api.get('/rooms');
-      setRooms(data);
+      const { data } = await api.get('/rooms', {
+        params: {
+          page: currentPage,
+          sort: currentSort,
+          search: querySearch,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setRooms(data.data);
+      setTotalPage(Math.ceil(data.count / 5));
     } catch (error) {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to fetch rooms. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
     }
-  }, [toast]);
+  }, [currentPage, currentSort, querySearch, token, toast]);
 
   const handleDeleteRoom = async ({ id }) => {
     try {
-      await api.delete(`/rooms/${id}`).then((res) => {
-        getRooms();
-        onClose();
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'Room is deleted.',
-          isClosable: true,
-          duration: 2500,
-        });
+      await api.delete(`/rooms/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      getRooms();
+      onClose();
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Room is deleted.',
+        isClosable: true,
+        duration: 2500,
       });
     } catch (error) {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to delete room. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
     }
+  };
+
+  const handleChangeSort = (e) => {
+    const newValue = e.target.value;
+    setCurrentSort(newValue);
+    setCurrentPage(1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (totalPage > currentPage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handleSearchTerm = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   useEffect(() => {
@@ -133,11 +177,21 @@ function TenantRooms() {
             <InputLeftElement pointerEvents="none">
               <FiSearch color="gray.300" />
             </InputLeftElement>
+            <Input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={handleSearchTerm}
+            />
           </InputGroup>
 
           <InputGroup alignItems="center" justifyContent="end">
             <Text mr="1rem">Sort by</Text>
-            <Select width="200px">
+            <Select
+              width="200px"
+              value={currentSort}
+              onChange={handleChangeSort}
+            >
               <option value="ASC" defaultValue>
                 A-Z
               </option>
@@ -150,8 +204,8 @@ function TenantRooms() {
           <Table>
             <Thead>
               <Tr>
-                <Th>Property</Th>
                 <Th>Room Type</Th>
+                <Th>Property</Th>
                 <Th>Price</Th>
                 <Th>Description</Th>
                 <Th></Th>
@@ -165,9 +219,11 @@ function TenantRooms() {
               ) : (
                 rooms.map((room) => (
                   <Tr key={room.id}>
-                    <Td>{room.property.name}</Td>
                     <Td>{room.roomType}</Td>
-                    <Td>{room.price}</Td>
+                    <Td>{room.property.name}</Td>
+                    <Td>
+                      Rp {new Intl.NumberFormat('id-ID').format(room.price)}
+                    </Td>
                     <Td>{room.description}</Td>
                     <Td isNumeric>
                       <ButtonGroup>
@@ -194,9 +250,11 @@ function TenantRooms() {
           </Table>
         </TableContainer>
         <Flex justifyContent="flex-end" alignItems="center">
-          <Button>{'<'}</Button>
-          <Text mx="2">1 of 1</Text>
-          <Button>{'>'}</Button>
+          <Button onClick={() => handlePrevPage()}>{'<'}</Button>
+          <Text mx="2">
+            {currentPage} of {totalPage === 0 ? 1 : totalPage}
+          </Text>
+          <Button onClick={() => handleNextPage()}>{'>'}</Button>
         </Flex>
       </Stack>
 

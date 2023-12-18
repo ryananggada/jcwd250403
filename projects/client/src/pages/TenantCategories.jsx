@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   Box,
@@ -31,6 +32,7 @@ import {
 import api from '../api';
 import { FiSearch } from 'react-icons/fi';
 import TenantLayout from '../components/TenantLayout';
+import useDebounce from '../hooks/useDebounce';
 
 const DeleteCategoryModal = ({
   isOpen,
@@ -67,6 +69,8 @@ const DeleteCategoryModal = ({
 };
 
 function TenantCategories() {
+  const token = useSelector((state) => state.auth.token);
+
   const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [modalData, setModalData] = useState({ id: 0, location: '' });
@@ -74,10 +78,8 @@ function TenantCategories() {
   const [totalPage, setTotalPage] = useState(1);
   const [currentSort, setCurrentSort] = useState('ASC');
   const [searchTerm, setSearchTerm] = useState('');
-  const [querySearch, setQuerySearch] = useState('');
+  const querySearch = useDebounce(searchTerm, 1500);
   const { isOpen, onClose, onOpen } = useDisclosure();
-
-  const searchTimeout = useRef(null);
 
   const handleOpenDeleteModal = ({ id, location }) => {
     setModalData({ id, location });
@@ -86,16 +88,20 @@ function TenantCategories() {
 
   const getCategories = useCallback(async () => {
     try {
-      const { data } = await api.get(
-        `/categories?page=${currentPage}&sort=${currentSort}&search=${querySearch}`
-      );
+      const { data } = await api.get('/categories', {
+        params: {
+          page: currentPage,
+          sort: currentSort,
+          search: querySearch,
+        },
+      });
       setCategories(data.data);
       setTotalPage(Math.ceil(data.count / 5));
     } catch (error) {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to fetch categories. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
@@ -104,22 +110,25 @@ function TenantCategories() {
 
   const handleDeleteCategory = async ({ id }) => {
     try {
-      await api.delete(`/categories/${id}`).then((res) => {
-        getCategories();
-        onClose();
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'Category is deleted.',
-          isClosable: true,
-          duration: 2500,
-        });
+      await api.delete(`/categories/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      getCategories();
+      onClose();
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Category is deleted.',
+        isClosable: true,
+        duration: 2500,
       });
     } catch (error) {
       toast({
         status: 'error',
         title: 'Failure',
-        description: `Failed to delete category. Message: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
@@ -152,16 +161,6 @@ function TenantCategories() {
   useEffect(() => {
     getCategories();
   }, [getCategories]);
-
-  useEffect(() => {
-    if (searchTimeout.current) {
-      clearTimeout(searchTimeout.current);
-    }
-
-    searchTimeout.current = setTimeout(() => {
-      setQuerySearch(searchTerm);
-    }, 500);
-  }, [searchTerm]);
 
   return (
     <TenantLayout>

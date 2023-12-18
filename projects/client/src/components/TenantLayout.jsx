@@ -1,3 +1,4 @@
+import { useSelector, useDispatch } from 'react-redux';
 import {
   IconButton,
   Box,
@@ -15,26 +16,33 @@ import {
   VStack,
   MenuList,
   MenuItem,
-  MenuDivider,
+  Image,
 } from '@chakra-ui/react';
 import {
   FiHome,
-  FiTrendingUp,
-  FiCompass,
-  FiStar,
-  FiSettings,
+  FiGrid,
+  FiLayers,
+  FiCalendar,
   FiMenu,
-  FiBell,
+  FiCreditCard,
   FiChevronDown,
+  FiKey,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { logout } from '../slices/auth';
+import { jwtDecode } from 'jwt-decode';
 
 const LinkItems = [
   { name: 'Home', icon: FiHome, path: '/tenant' },
-  { name: 'Categories', icon: FiTrendingUp, path: '/tenant/categories' },
-  { name: 'Properties', icon: FiCompass, path: '/tenant/properties' },
-  { name: 'Rooms', icon: FiStar, path: '/tenant/rooms' },
-  { name: 'Transactions', icon: FiSettings, path: '/tenant/transactions' },
+  { name: 'Categories', icon: FiGrid, path: '/tenant/categories' },
+  { name: 'Properties', icon: FiLayers, path: '/tenant/properties' },
+  { name: 'Rooms', icon: FiKey, path: '/tenant/rooms' },
+  {
+    name: 'Set availability',
+    icon: FiCalendar,
+    path: '/tenant/availabilities',
+  },
+  { name: 'Orders', icon: FiCreditCard, path: '/tenant/orders' },
 ];
 
 const SidebarContent = ({ onClose, ...rest }) => {
@@ -50,9 +58,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
       {...rest}
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontWeight="bold">
-          Pintuku
-        </Text>
+        <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
@@ -96,7 +102,9 @@ const NavItem = ({ icon, link, children, ...rest }) => {
   );
 };
 
-const MobileNav = ({ onOpen, ...rest }) => {
+const MobileNav = ({ onOpen, tenantName, ...rest }) => {
+  const dispatch = useDispatch();
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -117,22 +125,11 @@ const MobileNav = ({ onOpen, ...rest }) => {
         icon={<FiMenu />}
       />
 
-      <Text
-        display={{ base: 'flex', md: 'none' }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
-      >
-        Pintuku
-      </Text>
+      <Box display={{ base: 'flex', md: 'none' }}>
+        <Image src="/logoHor.png" alt="Logo Pintuku" width="100px" />
+      </Box>
 
       <HStack spacing={{ base: '0', md: '6' }}>
-        <IconButton
-          size="lg"
-          variant="ghost"
-          aria-label="Open Menu"
-          icon={<FiBell />}
-        />
         <Flex alignItems="center">
           <Menu>
             <MenuButton
@@ -148,7 +145,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">Tenant Name</Text>
+                  <Text fontSize="sm">{tenantName}</Text>
                 </VStack>
                 <Box display={{ base: 'none', md: 'flex' }}>
                   <FiChevronDown />
@@ -156,9 +153,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
               </HStack>
             </MenuButton>
             <MenuList bg="white" borderColor="gray.200">
-              <MenuItem>Profile</MenuItem>
-              <MenuDivider />
-              <MenuItem>Logout</MenuItem>
+              <MenuItem onClick={() => dispatch(logout())}>Logout</MenuItem>
             </MenuList>
           </Menu>
         </Flex>
@@ -169,6 +164,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
 
 function TenantLayout({ children }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const token = useSelector((state) => state.auth.token);
+  const payload = jwtDecode(token);
 
   return (
     <Box minH="100vh">
@@ -188,7 +185,7 @@ function TenantLayout({ children }) {
           <SidebarContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
-      <MobileNav onOpen={onOpen} />
+      <MobileNav onOpen={onOpen} tenantName={payload.name} />
       <Box ml={{ base: 0, md: 60 }} p="8">
         {children}
       </Box>

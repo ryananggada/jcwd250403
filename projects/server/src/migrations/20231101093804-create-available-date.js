@@ -16,8 +16,11 @@ module.exports = {
       date: {
         type: Sequelize.DATEONLY,
       },
-      status: {
-        type: Sequelize.STRING,
+      pricePercentage: {
+        type: Sequelize.DOUBLE,
+      },
+      isAvailable: {
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,

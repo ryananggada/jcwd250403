@@ -1,4 +1,5 @@
-const { Room, Property } = require('../models');
+const { Room, Property, AvailableDate, Category } = require('../models');
+const { Op, Sequelize } = require('sequelize');
 
 exports.addRoom = async (req, res) => {
   const { propertyId, roomType, price, description } = req.body;
@@ -77,16 +78,20 @@ exports.deleteRoom = async (req, res) => {
 
 exports.getAllRooms = async (req, res) => {
   const { page, sort = '', search = '' } = req.query;
+  const tenantId = req.profile.id;
 
   try {
     if (page || sort || search) {
       const rooms = await Room.findAndCountAll({
         where: {
-          roomType: { [Op.like]: `${search}` },
+          roomType: { [Op.like]: `%${search}%` },
         },
         attributes: { exclude: ['propertyId'] },
-        include: [{ model: Property, as: 'property' }],
-        order: [['roomType', sort ? sort : 'ASC']],
+        include: [{ model: Property, as: 'property', where: { tenantId } }],
+        order: [
+          ['propertyId', 'ASC'],
+          ['roomType', sort ? sort : 'ASC'],
+        ],
         offset: 5 * ((page ? page : 1) - 1),
         limit: 5,
       });
@@ -100,7 +105,7 @@ exports.getAllRooms = async (req, res) => {
 
     const rooms = await Room.findAll({
       attributes: { exclude: ['propertyId'] },
-      include: [{ model: Property, as: 'property' }],
+      include: [{ model: Property, as: 'property', where: { tenantId } }],
     });
     return res.json({ ok: true, data: rooms });
   } catch (error) {
@@ -117,7 +122,16 @@ exports.getSingleRoom = async (req, res) => {
         id: roomId,
       },
       attributes: { exclude: ['propertyId'] },
-      include: [{ model: Property, as: 'property' }],
+      include: [
+        {
+          model: Property,
+          as: 'property',
+          attributes: { exclude: ['categoryId'] },
+          include: [
+            { model: Category, as: 'category', attributes: ['location'] },
+          ],
+        },
+      ],
     });
 
     if (!room) {
@@ -128,6 +142,51 @@ exports.getSingleRoom = async (req, res) => {
     }
 
     return res.json({ ok: true, data: room });
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: String(error) });
+  }
+};
+
+exports.getRoomsByPropertyId = async (req, res) => {
+  const propertyId = req.params.id;
+  const { startDate, endDate } = req.query;
+
+  const dt = new Date(Date.parse(endDate) - 24 * 60 * 60 * 1000);
+  const year = dt.getFullYear();
+  const month = `0${dt.getMonth() + 1}`.slice(-2);
+  const day = `0${dt.getDate()}`.slice(-2);
+
+  const newEndDate = `${year}-${month}-${day}`;
+
+  try {
+    const rooms = await Room.findAll({
+      where: { propertyId: propertyId },
+      include: [
+        {
+          model: AvailableDate,
+          as: 'availableDates',
+          where: {
+            date: { [Op.between]: [startDate, newEndDate] },
+            isAvailable: true,
+          },
+          order: [['date', 'ASC']],
+        },
+      ],
+    });
+
+    const roomsWithTotalPrice = rooms.map((room) => {
+      const basePrice = room.price;
+      const totalPrice = room.availableDates.reduce((acc, availableDate) => {
+        return acc + basePrice * (1 + availableDate.pricePercentage);
+      }, 0);
+
+      return {
+        ...room.toJSON(),
+        totalPrice: totalPrice,
+      };
+    });
+
+    return res.json({ ok: true, data: roomsWithTotalPrice });
   } catch (error) {
     return res.status(500).json({ ok: false, message: String(error) });
   }

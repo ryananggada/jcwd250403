@@ -19,6 +19,21 @@ exports.userSignupRules = [
     .withMessage('Phone number must be in valid format.'),
 ];
 
+exports.userLoginRules = [
+  body('email').isEmail().withMessage('Email must be valid.'),
+  body('password')
+    .isStrongPassword({
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1,
+    })
+    .withMessage(
+      'Password must be at least 8 length, have at least one uppercase, lowercase, number and symbol.'
+    ),
+];
+
 exports.applyUserAuthValidation = (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {

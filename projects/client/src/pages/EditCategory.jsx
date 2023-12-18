@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Text,
   Button,
@@ -16,32 +17,42 @@ import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
 function EditCategory() {
+  const token = useSelector((state) => state.auth.token);
+
   const { id } = useParams();
   const toast = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (values, form) => {
-    try {
-      api.put(`/categories/${id}`, values).then((res) => {
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'Category has changed.',
-          isClosable: true,
-          duration: 2500,
-        });
+  const [isLoading, setIsLoading] = useState(false);
 
-        form.resetForm();
-        navigate('/tenant/categories');
+  const handleSubmit = async (values, form) => {
+    setIsLoading(true);
+    try {
+      await api.put(`/categories/${id}`, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Category has changed.',
+        isClosable: true,
+        duration: 2500,
+      });
+
+      form.resetForm();
+      navigate('/tenant/categories');
     } catch (error) {
       toast({
         status: 'error',
         title: 'Error',
-        description: `Something went wrong: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,7 +104,14 @@ function EditCategory() {
           <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green" maxWidth="156px">
+        <Button
+          type="submit"
+          isDisabled={!(formik.isValid && formik.dirty)}
+          colorScheme="green"
+          maxWidth="156px"
+          isLoading={isLoading}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </Stack>

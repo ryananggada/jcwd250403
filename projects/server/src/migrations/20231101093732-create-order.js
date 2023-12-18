@@ -17,6 +17,9 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: { model: 'Rooms', key: 'id' },
       },
+      invoiceId: {
+        type: Sequelize.STRING,
+      },
       startDate: {
         type: Sequelize.DATEONLY,
       },

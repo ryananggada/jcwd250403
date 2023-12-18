@@ -20,9 +20,14 @@ const db = require('./models');
 db.sequelize.sync();
 
 const userAuthRouter = require('./routes/userAuth');
+const tenantAuthRouter = require('./routes/tenantAuth');
 const categoryRouter = require('./routes/category');
 const propertyRouter = require('./routes/property');
 const roomRouter = require('./routes/room');
+const availableDateRouter = require('./routes/availableDate');
+const verifyRouter = require('./routes/verify');
+const orderRouter = require('./routes/order');
+const reviewRouter = require('./routes/review');
 
 //#region API ROUTES
 
@@ -40,9 +45,14 @@ app.get('/api/greetings', (req, res, next) => {
 });
 
 app.use('/api/auth/user', userAuthRouter);
+app.use('/api/auth/tenant', tenantAuthRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/properties', propertyRouter);
 app.use('/api/rooms', roomRouter);
+app.use('/api/available-dates', availableDateRouter);
+app.use('/api/verify', verifyRouter);
+app.use('/api/orders', orderRouter);
+app.use('/api/reviews', reviewRouter);
 
 app.use('/images', express.static(__dirname + '/public'));
 

@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       roomId: DataTypes.INTEGER,
       date: DataTypes.DATEONLY,
-      status: DataTypes.STRING,
+      pricePercentage: DataTypes.DOUBLE,
+      isAvailable: DataTypes.BOOLEAN,
     },
     {
       sequelize,

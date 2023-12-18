@@ -2,22 +2,19 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('SpecialDates', {
+    await queryInterface.createTable('ResetPasses', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      roomId: {
+      userId: {
         type: Sequelize.INTEGER,
-        references: { model: 'Rooms', key: 'id' },
+        references: { model: 'Users', key: 'id' },
       },
-      date: {
-        type: Sequelize.DATEONLY,
-      },
-      pricePercentage: {
-        type: Sequelize.DOUBLE,
+      token: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
@@ -30,6 +27,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('SpecialDates');
+    await queryInterface.dropTable('ResetPasses');
   },
 };

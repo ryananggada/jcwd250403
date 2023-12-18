@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Text,
   Button,
@@ -18,28 +20,39 @@ function CreateCategory() {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (values, form) => {
-    try {
-      api.post(`/categories`, values).then((res) => {
-        toast({
-          status: 'success',
-          title: 'Success',
-          description: 'New category is added.',
-          isClosable: true,
-          duration: 2500,
-        });
+  const token = useSelector((state) => state.auth.token);
 
-        form.resetForm();
-        navigate('/tenant/categories');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (values, form) => {
+    setIsLoading(true);
+
+    try {
+      await api.post(`/categories`, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'New category is added.',
+        isClosable: true,
+        duration: 2500,
+      });
+
+      form.resetForm();
+      navigate('/tenant/categories');
     } catch (error) {
       toast({
         status: 'error',
         title: 'Error',
-        description: `Something went wrong: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,7 +89,13 @@ function CreateCategory() {
           <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green" maxWidth="156px">
+        <Button
+          type="submit"
+          colorScheme="green"
+          maxWidth="156px"
+          isLoading={isLoading}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </Stack>

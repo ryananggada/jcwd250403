@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Stack,
   Text,
@@ -24,8 +25,10 @@ function EditProperty() {
   const { id } = useParams();
   const toast = useToast();
   const navigate = useNavigate();
+  const token = useSelector((state) => state.auth.token);
 
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': ['.jpeg', '.png'] },
@@ -44,7 +47,6 @@ function EditProperty() {
   const propertySchema = Yup.object().shape({
     name: Yup.string().required('Property name is required'),
     categoryId: Yup.string().required('Category is required'),
-    tenantId: Yup.string().required('Tenant is required'),
     description: Yup.string().required('Description is required'),
     picture: Yup.mixed()
       .nullable(true)
@@ -67,38 +69,40 @@ function EditProperty() {
   });
 
   const handleSubmit = async (values, form) => {
+    setIsLoading(true);
     try {
       const formData = new FormData();
       formData.append('name', values.name);
       formData.append('categoryId', values.categoryId);
-      formData.append('tenantId', values.tenantId);
       formData.append('description', values.description);
       formData.append('picture', values.picture);
 
-      api
-        .put(`/properties/${id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        .then((res) => {
-          toast({
-            status: 'success',
-            title: 'Success',
-            description: 'Property successfully editted.',
-            isClosable: true,
-            duration: 2500,
-          });
+      await api.put(`/properties/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      toast({
+        status: 'success',
+        title: 'Success',
+        description: 'Property successfully editted.',
+        isClosable: true,
+        duration: 2500,
+      });
 
-          form.resetForm();
-          navigate('/tenant/properties');
-        });
+      form.resetForm();
+      navigate('/tenant/properties');
     } catch (error) {
       toast({
         status: 'error',
         title: 'Error',
-        description: `Something went wrong: ${error.message}`,
+        description: `${error.response.data.message}`,
         isClosable: true,
         duration: 2500,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -106,7 +110,6 @@ function EditProperty() {
     initialValues: {
       name: '',
       categoryId: 1,
-      tenantId: 1,
       description: '',
       picture: null,
     },
@@ -116,6 +119,13 @@ function EditProperty() {
   });
 
   useEffect(() => {
+    api.get('/categories').then((res) => {
+      const {
+        data: { data },
+      } = res;
+      setCategories(data);
+    });
+
     const fetchProperty = async () => {
       const response = await api.get(`/properties/${id}`);
       const {
@@ -124,7 +134,6 @@ function EditProperty() {
 
       formik.setFieldValue('name', data.name);
       formik.setFieldValue('categoryId', data.category.id);
-      formik.setFieldValue('tenantId', data.tenant.id);
       formik.setFieldValue('description', data.description);
 
       formik.setFieldValue(
@@ -134,14 +143,6 @@ function EditProperty() {
     };
 
     fetchProperty();
-
-    api.get('/categories').then((res) => {
-      const {
-        data: { data },
-      } = res;
-      setCategories(data);
-    });
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -223,7 +224,13 @@ function EditProperty() {
           <FormErrorMessage>{formik.errors.picture}</FormErrorMessage>
         </FormControl>
 
-        <Button type="submit" colorScheme="green">
+        <Button
+          type="submit"
+          isDisabled={!(formik.isValid && formik.dirty)}
+          colorScheme="green"
+          isLoading={isLoading}
+          loadingText="Submitting"
+        >
           Submit
         </Button>
       </Stack>
