@@ -122,9 +122,13 @@ function UserLayout({ children }) {
 
   useEffect(() => {
     if (token) {
-      api.get(`/auth/user/profile/${jwtDecode(token).id}`).then((res) => {
-        setProfilePicture(res.data.data.user.profilePicture);
-      });
+      api
+        .get('/auth/user/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          setProfilePicture(res.data.data.user.profilePicture);
+        });
     }
   }, [token]);
 

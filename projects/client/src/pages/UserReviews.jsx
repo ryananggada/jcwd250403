@@ -13,20 +13,20 @@ import {
 import { FaStar, FaRegStar } from 'react-icons/fa';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
-import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom';
 
 function UserReviews() {
   const token = useSelector((state) => state.auth.token);
-  const payload = jwtDecode(token);
 
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    api.get(`/reviews/user/${payload.id}`).then((res) => {
-      setReviews(res.data.data);
-    });
-  }, [payload.id]);
+    api
+      .get('/reviews/user', { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
+        setReviews(res.data.data);
+      });
+  }, [token]);
 
   return (
     <UserLayout>

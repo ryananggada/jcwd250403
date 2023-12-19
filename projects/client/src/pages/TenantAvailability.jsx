@@ -49,6 +49,7 @@ function TenantAvailability() {
         },
       });
       setRooms(data);
+      setTotalPage(Math.ceil(data.count / 5));
     };
 
     getRooms();

@@ -13,6 +13,7 @@ router.post(
   '/',
   authMiddleware.tokenValidator,
   authMiddleware.tenantValidator,
+  roomValidator.roomRules,
   roomValidator.applyRoomValidation,
   roomController.addRoom
 );
@@ -22,6 +23,7 @@ router.put(
   '/:id',
   authMiddleware.tokenValidator,
   authMiddleware.tenantValidator,
+  roomValidator.roomRules,
   roomValidator.applyRoomValidation,
   roomController.editRoom
 );

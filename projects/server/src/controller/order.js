@@ -14,7 +14,8 @@ const path = require('path');
 const sendEmail = require('../middleware/email');
 
 exports.addOrder = async (req, res) => {
-  const { userId, roomId, startDate, endDate, totalPrice } = req.body;
+  const userId = req.profile.id;
+  const { roomId, startDate, endDate, totalPrice } = req.body;
 
   const dt = new Date(Date.parse(endDate) - 24 * 60 * 60 * 1000);
   const year = dt.getFullYear();
@@ -169,7 +170,7 @@ exports.getOrdersAsUser = async (req, res) => {
     invoiceId = '',
     date = new Date(),
   } = req.query;
-  const userId = req.params.id;
+  const userId = req.profile.id;
 
   try {
     if (page || sort || status || invoiceId || date) {

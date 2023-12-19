@@ -23,18 +23,23 @@ router.post(
   multerUpload.single('profilePicture'),
   userAuthController.uploadProfilePicture
 );
-router.get('/profile/:id', userAuthController.getUserProfile);
-router.put(
-  '/profile',
-  authMiddleware.tokenValidator,
-  authMiddleware.userValidator,
-  userAuthController.editUserProfile
-);
 router.put(
   '/profile/change-password',
   authMiddleware.tokenValidator,
   authMiddleware.userValidator,
   userAuthController.changePassword
+);
+router.get(
+  '/profile',
+  authMiddleware.tokenValidator,
+  authMiddleware.userValidator,
+  userAuthController.getUserProfile
+);
+router.put(
+  '/profile',
+  authMiddleware.tokenValidator,
+  authMiddleware.userValidator,
+  userAuthController.editUserProfile
 );
 router.post('/forgot-password', userAuthController.forgotPassword);
 router.put('/reset-password/:token', userAuthController.resetPassword);

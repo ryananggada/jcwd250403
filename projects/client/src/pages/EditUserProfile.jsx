@@ -128,7 +128,9 @@ function EditUserProfile() {
         data: {
           data: { user },
         },
-      } = await api.get(`/auth/user/profile/${payload.id}`);
+      } = await api.get(`/auth/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       formik.setFieldValue('name', user.name);
       formik.setFieldValue('email', user.email);

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   useToast,
@@ -32,6 +33,8 @@ function CustomRadio({ children, ...props }) {
 }
 
 function AddUserReview() {
+  const token = useSelector((state) => state.auth.token);
+
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -47,7 +50,9 @@ function AddUserReview() {
     setIsLoading(true);
 
     try {
-      await api.put(`/reviews/${id}`, values);
+      await api.put(`/reviews/${id}`, values, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast({
         status: 'success',
         title: 'Success',

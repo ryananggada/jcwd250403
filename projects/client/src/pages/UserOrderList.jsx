@@ -19,7 +19,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import { jwtDecode } from 'jwt-decode';
 import UserLayout from '../components/UserLayout';
 import api from '../api';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
@@ -36,7 +35,6 @@ function UserOrderList() {
   const [date, setDate] = useState(new Date());
 
   const token = useSelector((state) => state.auth.token);
-  const payload = jwtDecode(token);
 
   const handleChangeStatus = (e) => {
     const newValue = e.target.value;
@@ -69,7 +67,10 @@ function UserOrderList() {
 
   useEffect(() => {
     const getOrders = async () => {
-      const { data } = await api.get(`/orders/user/${payload.id}`, {
+      const { data } = await api.get('/orders/user', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         params: {
           page: currentPage,
           sort: currentSort,
@@ -82,7 +83,7 @@ function UserOrderList() {
       setTotalPage(Math.ceil(data.count / 5));
     };
     getOrders();
-  }, [payload.id, currentPage, currentSort, currentStatus, invoiceId, date]);
+  }, [token, currentPage, currentSort, currentStatus, invoiceId, date]);
 
   return (
     <UserLayout>

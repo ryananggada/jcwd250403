@@ -15,14 +15,12 @@ import {
   Select,
   Flex,
 } from '@chakra-ui/react';
-import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import TenantLayout from '../components/TenantLayout';
 import api from '../api';
 
 function TenantOrders() {
   const token = useSelector((state) => state.auth.token);
-  const payload = jwtDecode(token);
 
   const navigate = useNavigate();
 

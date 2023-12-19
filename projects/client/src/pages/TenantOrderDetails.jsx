@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   TableContainer,
@@ -23,6 +24,8 @@ import api from '../api';
 import TenantLayout from '../components/TenantLayout';
 
 function TenantOrderDetails() {
+  const token = useSelector((state) => state.auth.token);
+
   const { id } = useParams();
 
   const toast = useToast();
@@ -32,7 +35,9 @@ function TenantOrderDetails() {
 
   const handleConfirmOrder = async () => {
     try {
-      await api.post(`/orders/${id}/confirm`);
+      await api.post(`/orders/${id}/confirm`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast({
         status: 'success',
         title: 'Success',
@@ -54,7 +59,9 @@ function TenantOrderDetails() {
 
   const handleRejectOrder = async () => {
     try {
-      await api.delete(`/orders/${id}/reject`);
+      await api.delete(`/orders/${id}/reject`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast({
         status: 'success',
         title: 'Success',
@@ -76,7 +83,9 @@ function TenantOrderDetails() {
 
   const handleCancelOrder = async () => {
     try {
-      await api.delete(`/orders/${id}/cancel`);
+      await api.delete(`/orders/${id}/cancel`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast({
         status: 'success',
         title: 'Success',
@@ -97,10 +106,12 @@ function TenantOrderDetails() {
   };
 
   useEffect(() => {
-    api.get(`/orders/${id}`).then((res) => {
-      setOrder(res.data.data);
-    });
-  }, [id]);
+    api
+      .get(`/orders/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
+        setOrder(res.data.data);
+      });
+  }, [id, token]);
 
   return (
     <TenantLayout>
