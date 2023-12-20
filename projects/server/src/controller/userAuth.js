@@ -125,7 +125,7 @@ exports.loginHandler = async (req, res) => {
 };
 
 exports.getUserProfile = async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.profile.id;
 
   try {
     const user = await User.findOne({

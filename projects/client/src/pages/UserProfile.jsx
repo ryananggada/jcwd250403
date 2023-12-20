@@ -5,11 +5,8 @@ import { Box, Stack, Text, Center, Avatar, Button } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
-import { jwtDecode } from 'jwt-decode';
-
 function UserProfile() {
   const token = useSelector((state) => state.auth.token);
-  const payload = jwtDecode(token);
 
   const [userProfile, setUserProfile] = useState({});
 
@@ -17,11 +14,15 @@ function UserProfile() {
     const getUserProfile = async () => {
       const {
         data: { data },
-      } = await api.get(`/auth/user/profile/${payload.id}`);
+      } = await api.get('/auth/user/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setUserProfile(data.user);
     };
     getUserProfile();
-  }, [payload.id]);
+  }, [token]);
 
   return (
     <UserLayout>

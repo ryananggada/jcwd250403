@@ -39,7 +39,7 @@ exports.getReviewsFromProperty = async (req, res) => {
 };
 
 exports.getReviewsFromUser = async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.profile.id;
 
   try {
     const reviews = await Review.findAll({

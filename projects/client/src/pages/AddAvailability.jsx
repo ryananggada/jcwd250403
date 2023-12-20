@@ -95,9 +95,11 @@ function AddAvailability() {
   const getAvailableDates = useCallback(async () => {
     const {
       data: { data },
-    } = await api.get(`/available-dates/${id}`);
+    } = await api.get(`/available-dates/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     setAvailableDates(data);
-  }, [id]);
+  }, [id, token]);
 
   useEffect(() => {
     getAvailableDates();

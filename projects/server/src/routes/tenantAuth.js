@@ -7,7 +7,7 @@ router.post(
   '/signup',
   multerUpload.single('ktpCard'),
   tenantAuthValidator.tenantSignupRules,
-  tenantAuthValidator.tenantSignupRules,
+  tenantAuthValidator.applyTenantAuthValidation,
   tenantAuthController.createTenant
 );
 router.post(

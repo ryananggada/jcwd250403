@@ -133,7 +133,6 @@ function TenantLogin() {
               <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
             </FormControl>
             <Stack spacing={5}>
-              <Text color="blue.400">Forgot password?</Text>
               <Link to="/tenant/signup">
                 <Text as="u" color="blue.400">
                   Don't have an account? Create here

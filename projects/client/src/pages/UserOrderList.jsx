@@ -19,7 +19,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import { jwtDecode } from 'jwt-decode';
 import UserLayout from '../components/UserLayout';
 import api from '../api';
 import { SingleDatepicker } from 'chakra-dayzed-datepicker';
@@ -31,11 +30,11 @@ function UserOrderList() {
   const [totalPage, setTotalPage] = useState(1);
   const [currentSort, setCurrentSort] = useState('id');
   const [currentStatus, setCurrentStatus] = useState('');
+  const [invoiceId, setInvoiceId] = useState('');
 
   const [date, setDate] = useState(new Date());
 
   const token = useSelector((state) => state.auth.token);
-  const payload = jwtDecode(token);
 
   const handleChangeStatus = (e) => {
     const newValue = e.target.value;
@@ -46,6 +45,11 @@ function UserOrderList() {
   const handleChangeSort = (e) => {
     const newValue = e.target.value;
     setCurrentSort(newValue);
+    setCurrentPage(1);
+  };
+
+  const handleInvoiceId = (e) => {
+    setInvoiceId(e.target.value);
     setCurrentPage(1);
   };
 
@@ -63,11 +67,15 @@ function UserOrderList() {
 
   useEffect(() => {
     const getOrders = async () => {
-      const { data } = await api.get(`/orders/user/${payload.id}`, {
+      const { data } = await api.get('/orders/user', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         params: {
           page: currentPage,
           sort: currentSort,
           status: currentStatus,
+          invoiceId: invoiceId,
           date,
         },
       });
@@ -75,7 +83,7 @@ function UserOrderList() {
       setTotalPage(Math.ceil(data.count / 5));
     };
     getOrders();
-  }, [payload.id, currentPage, currentSort, currentStatus, date]);
+  }, [token, currentPage, currentSort, currentStatus, invoiceId, date]);
 
   return (
     <UserLayout>
@@ -112,14 +120,14 @@ function UserOrderList() {
         </FormControl>
 
         <FormControl>
-          <FormLabel>Order ID</FormLabel>
-          <Input />
+          <FormLabel>Invoice ID</FormLabel>
+          <Input type="text" value={invoiceId} onChange={handleInvoiceId} />
         </FormControl>
 
         <FormControl>
           <FormLabel>Sort by</FormLabel>
           <Select value={currentSort} onChange={handleChangeSort}>
-            <option value="id" defaultValue>
+            <option value="invoiceId" defaultValue>
               Invoice ID
             </option>
             <option value="startDate">Date</option>

@@ -20,7 +20,6 @@ import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
-import { jwtDecode } from 'jwt-decode';
 
 function EditUserProfile() {
   const toast = useToast();
@@ -29,7 +28,6 @@ function EditUserProfile() {
   const profilePictureRef = useRef(null);
 
   const token = useSelector((state) => state.auth.token);
-  const payload = jwtDecode(token);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -111,12 +109,7 @@ function EditUserProfile() {
   };
 
   const formik = useFormik({
-    initialValues: {
-      name: '',
-      email: '',
-      gender: '',
-      birthDate: new Date(),
-    },
+    initialValues: {},
     enableReintialize: true,
     validationSchema: profileSchema,
     onSubmit: handleSubmit,
@@ -128,22 +121,22 @@ function EditUserProfile() {
         data: {
           data: { user },
         },
-      } = await api.get(`/auth/user/profile/${payload.id}`);
+      } = await api.get(`/auth/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      formik.setFieldValue('name', user.name);
-      formik.setFieldValue('email', user.email);
-      formik.setFieldValue('gender', user.gender);
-      formik.setFieldValue('birthDate', new Date(user.birthDate));
-
-      formik.setFieldValue(
-        'profilePicture',
-        `${process.env.REACT_APP_IMAGE_LINK}/${user.profilePicture}`
-      );
+      formik.setValues({
+        name: user.name,
+        email: user.email,
+        gender: user.gender,
+        birthDate: new Date(user.birthDate),
+        profilePicture: `${process.env.REACT_APP_IMAGE_LINK}/${user.profilePicture}`,
+      });
     };
 
     getUserProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payload.id]);
+  }, [token]);
 
   return (
     <UserLayout>

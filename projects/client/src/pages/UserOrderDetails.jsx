@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import {
@@ -59,6 +60,8 @@ const CancelOrderModal = ({
 };
 
 function UserOrderDetails() {
+  const token = useSelector((state) => state.auth.token);
+
   const { id } = useParams();
   const toast = useToast();
   const navigate = useNavigate();
@@ -81,6 +84,7 @@ function UserOrderDetails() {
         formData.append('paymentProof', paymentProofRef.current.files[0]);
         await api.post(`/orders/${id}/upload-payment`, formData, {
           headers: {
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
@@ -91,6 +95,7 @@ function UserOrderDetails() {
           isClosable: true,
           duration: 2500,
         });
+        navigate('/user/orders');
       }
     } catch (error) {
       toast({
@@ -105,7 +110,9 @@ function UserOrderDetails() {
 
   const handleCancelOrder = async () => {
     try {
-      await api.delete(`/orders/${id}/cancel`);
+      await api.delete(`/orders/${id}/cancel`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast({
         status: 'success',
         title: 'Success',
@@ -127,11 +134,13 @@ function UserOrderDetails() {
 
   useEffect(() => {
     const getOrder = async () => {
-      const { data } = await api.get(`/orders/${id}`);
+      const { data } = await api.get(`/orders/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setOrder(data.data);
     };
     getOrder();
-  }, [id]);
+  }, [id, token]);
 
   return (
     <UserLayout>

@@ -13,7 +13,6 @@ import {
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { FiMapPin } from 'react-icons/fi';
-import { jwtDecode } from 'jwt-decode';
 import UserLayout from '../components/UserLayout';
 import api from '../api';
 
@@ -27,17 +26,19 @@ function BookProperty() {
   const toast = useToast();
 
   const token = useSelector((state) => state.auth.token);
-  const payload = token !== null ? jwtDecode(token) : '';
 
   const handleCreateOrder = async () => {
     try {
-      await api.post('/orders', {
-        userId: payload.id,
-        roomId: room.id,
-        startDate,
-        endDate,
-        totalPrice,
-      });
+      await api.post(
+        '/orders',
+        {
+          roomId: room.id,
+          startDate,
+          endDate,
+          totalPrice,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       toast({
         status: 'success',
         title: 'Success',

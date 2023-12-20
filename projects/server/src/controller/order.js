@@ -14,7 +14,8 @@ const path = require('path');
 const sendEmail = require('../middleware/email');
 
 exports.addOrder = async (req, res) => {
-  const { userId, roomId, startDate, endDate, totalPrice } = req.body;
+  const userId = req.profile.id;
+  const { roomId, startDate, endDate, totalPrice } = req.body;
 
   const dt = new Date(Date.parse(endDate) - 24 * 60 * 60 * 1000);
   const year = dt.getFullYear();
@@ -162,17 +163,24 @@ exports.cancelOrder = async (req, res) => {
 };
 
 exports.getOrdersAsUser = async (req, res) => {
-  const { page, sort = '', status = '', date = new Date() } = req.query;
-  const userId = req.params.id;
+  const {
+    page,
+    sort = '',
+    status = '',
+    invoiceId = '',
+    date = new Date(),
+  } = req.query;
+  const userId = req.profile.id;
 
   try {
-    if (page || sort || status || date) {
+    if (page || sort || status || invoiceId || date) {
       const orders = await Order.findAndCountAll({
         where: {
           userId,
           status: { [Op.like]: `%${status}%` },
           startDate: { [Op.lte]: date },
           endDate: { [Op.gte]: date },
+          invoiceId: { [Op.like]: `%${invoiceId}%` },
         },
         order: [[sort, 'DESC']],
         offset: 5 * ((page ? page : 1) - 1),
@@ -263,7 +271,7 @@ exports.confirmOrder = async (req, res) => {
         {
           model: Room,
           as: 'room',
-          attributes: ['propertyId'],
+          attributes: ['propertyId', 'roomType'],
           include: {
             model: Property,
             as: 'property',
@@ -310,7 +318,7 @@ exports.confirmOrder = async (req, res) => {
       let eYear = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(ed);
 
       const emailHtml = templateCompile({
-        orderId: order.id,
+        orderId: order.invoiceId,
         propertyName: order.room.property.name,
         roomName: order.room.roomType,
         startDate: `${sDay} ${sMonth} ${sYear}`,
@@ -356,7 +364,11 @@ exports.getOrderReports = async (req, res) => {
 
   try {
     const waitingOrdersCount = await Order.count({
-      where: { status: { [Op.like]: `%Waiting%` } },
+      where: {
+        status: {
+          [Op.or]: [{ [Op.like]: '%Waiting%' }, { [Op.like]: '%Pending%' }],
+        },
+      },
       include: [
         {
           model: Room,
