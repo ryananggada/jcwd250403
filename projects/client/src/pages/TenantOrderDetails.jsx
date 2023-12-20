@@ -197,12 +197,20 @@ function TenantOrderDetails() {
 
       <ButtonGroup
         mt={4}
-        display={order.status === 'Waiting' ? 'block' : 'none'}
+        display={
+          order.status === 'Waiting' || order.status === 'Pending'
+            ? 'flex'
+            : 'none'
+        }
       >
         <Button colorScheme="green" onClick={() => handleConfirmOrder()}>
           Confirm
         </Button>
-        <Button colorScheme="red" onClick={() => handleRejectOrder()}>
+        <Button
+          display={order.status === 'Waiting' ? 'block' : 'none'}
+          colorScheme="red"
+          onClick={() => handleRejectOrder()}
+        >
           Reject
         </Button>
         <Button

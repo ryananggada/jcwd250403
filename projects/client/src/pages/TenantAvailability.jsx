@@ -38,9 +38,7 @@ function TenantAvailability() {
 
   useEffect(() => {
     const getRooms = async () => {
-      const {
-        data: { data },
-      } = await api.get('/rooms', {
+      const { data } = await api.get('/rooms', {
         params: {
           page: currentPage,
         },
@@ -48,7 +46,7 @@ function TenantAvailability() {
           Authorization: `Bearer ${token}`,
         },
       });
-      setRooms(data);
+      setRooms(data.data);
       setTotalPage(Math.ceil(data.count / 5));
     };
 

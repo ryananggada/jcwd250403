@@ -111,12 +111,7 @@ function EditUserProfile() {
   };
 
   const formik = useFormik({
-    initialValues: {
-      name: '',
-      email: '',
-      gender: '',
-      birthDate: new Date(),
-    },
+    initialValues: {},
     enableReintialize: true,
     validationSchema: profileSchema,
     onSubmit: handleSubmit,
@@ -132,20 +127,18 @@ function EditUserProfile() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      formik.setFieldValue('name', user.name);
-      formik.setFieldValue('email', user.email);
-      formik.setFieldValue('gender', user.gender);
-      formik.setFieldValue('birthDate', new Date(user.birthDate));
-
-      formik.setFieldValue(
-        'profilePicture',
-        `${process.env.REACT_APP_IMAGE_LINK}/${user.profilePicture}`
-      );
+      formik.setValues({
+        name: user.name,
+        email: user.email,
+        gender: user.gender,
+        birthDate: new Date(user.birthDate),
+        profilePicture: `${process.env.REACT_APP_IMAGE_LINK}/${user.profilePicture}`,
+      });
     };
 
     getUserProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payload.id]);
+  }, [token]);
 
   return (
     <UserLayout>

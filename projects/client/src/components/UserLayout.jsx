@@ -182,7 +182,11 @@ function UserLayout({ children }) {
                 >
                   <Avatar
                     size="sm"
-                    src={`${process.env.REACT_APP_IMAGE_LINK}/${profilePicture}`}
+                    src={
+                      profilePicture
+                        ? `${process.env.REACT_APP_IMAGE_LINK}/${profilePicture}`
+                        : ''
+                    }
                   />
                 </MenuButton>
                 <MenuList zIndex={999}>

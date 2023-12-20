@@ -364,7 +364,11 @@ exports.getOrderReports = async (req, res) => {
 
   try {
     const waitingOrdersCount = await Order.count({
-      where: { status: { [Op.like]: `%Waiting%` } },
+      where: {
+        status: {
+          [Op.or]: [{ [Op.like]: '%Waiting%' }, { [Op.like]: '%Pending%' }],
+        },
+      },
       include: [
         {
           model: Room,
