@@ -20,7 +20,6 @@ import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import UserLayout from '../components/UserLayout';
-import { jwtDecode } from 'jwt-decode';
 
 function EditUserProfile() {
   const toast = useToast();
@@ -29,7 +28,6 @@ function EditUserProfile() {
   const profilePictureRef = useRef(null);
 
   const token = useSelector((state) => state.auth.token);
-  const payload = jwtDecode(token);
 
   const [isLoading, setIsLoading] = useState(false);
 
